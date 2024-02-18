@@ -11,7 +11,7 @@ import localFont from "next/font/local";
 // import { CookiesBanner } from "@/lib/components/CookieBanner";
 import { Suspense } from "react";
 const myFont = localFont({
-  src: "../../public/fonts/Montserrat-Regular.woff2",
+  src: "../public/fonts/Montserrat-Regular.woff2",
 });
 
 export const metadata: Metadata = {
