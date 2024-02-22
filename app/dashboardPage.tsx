@@ -1,8 +1,9 @@
 "use client";
-import { Button, Group, Stack, Text } from "@mantine/core";
+import { Button, Group, Stack, Table, Text, TextInput } from "@mantine/core";
 import { motion, useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
 import onScan from "onscan.js";
+import { PartState } from "@/lib/helper/part_state";
 
 declare global {
   interface Window {
@@ -10,60 +11,27 @@ declare global {
   }
 }
 
-export default function DashboardPage() {
+export interface ScannerPartState {
+  pbn?: string;
+  on?: string;
+  pc: string;
+  pm: string;
+  qty: number;
+  pdi?: string;
+}
+
+export default function DashboardPage({
+  loadedParts,
+}: {
+  loadedParts: PartState[];
+}) {
   const [scannerInput, setScannerInput] = useState<string | null>();
+  const [manualScannerInput, setManualScannerInput] = useState<string>("");
+  const [parts, setParts] = useState<PartState[]>(loadedParts);
+  // const [partState, setPartState] = useState<PartState | null>();
   let code = "";
   let reading = false;
 
-  // useEffect(() => {
-  //   console.log("useEffect");
-  //   if (onScan.isAttachedTo(document) == false) {
-  //     console.log("attaching onScan");
-  //     onScan.attachTo(document, {
-  //       suffixKeyCodes: [13], // enter-key expected at the end of a scan
-  //       reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
-  //       timeBeforeScanTest: 3,
-  //       avgTimeByChar: 1,
-  //       scanButtonLongPressTime: 20,
-
-  //       // onScan: function (sCode, iQty) {
-  //       //   // Alternative to document.addEventListener('scan')
-  //       //   console.log("SCANNED!!")
-  //       //   console.log("Scanned: " + sCode);
-  //       // },
-  //       onScan: function (sCode, iQty) {
-  //         // Alternative to document.addEventListener('scan')
-  //         console.log("SCANNED!!");
-  //         console.log("Scanned: " + sCode);
-  //       },
-  //       onKeyDetect: function (iKeyCode) {
-  //         // output all potentially relevant key events - great for debugging!
-  //         // console.log("Pressed: " + iKeyCode);
-  //       },
-  //     });
-  //   } else {
-  //     console.log("onScan already attached to document");
-  //     onScan.setOptions(document, {
-  //       suffixKeyCodes: [13], // enter-key expected at the end of a scan
-  //       reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
-  //       timeBeforeScanTest: 3,
-  //       avgTimeByChar: 1,
-  //       scanButtonLongPressTime: 20,
-
-  //       // onScan: function (sCode, iQty) {
-  //       //   // Alternative to document.addEventListener('scan')
-  //       //   console.log("SCANNED!!")
-  //       //   console.log("Scanned: " + sCode);
-  //       // },
-  //       onScan: function (sCode, iQty) {
-  //         // Alternative to document.addEventListener('scan')
-  //         console.log("SCANNED!!");
-  //         console.log("Scanned: " + sCode);
-  //       },
-  //     });
-  //   }
-
-  // }, []);
   if (typeof document !== "undefined") {
     if (onScan.isAttachedTo(document) == false) {
       console.log("attaching onScan");
@@ -73,12 +41,6 @@ export default function DashboardPage() {
         // timeBeforeScanTest: 3,
         // avgTimeByChar: 1,
         // scanButtonLongPressTime: 20,
-
-        // onScan: function (sCode, iQty) {
-        //   // Alternative to document.addEventListener('scan')
-        //   console.log("SCANNED!!")
-        //   console.log("Scanned: " + sCode);
-        // },
         keyCodeMapper: function (oEvent) {
           if (oEvent.keyCode === 190) {
             return ":";
@@ -89,268 +51,76 @@ export default function DashboardPage() {
           return onScan.decodeKeyEvent(oEvent);
         },
         onScan: function (sCode, iQty) {
-          // Alternative to document.addEventListener('scan') 
-          console.log("SCANNED!!");
-          console.log("Scanned: " + sCode + " " + iQty);
           setScannerInput(sCode);
         },
         onKeyDetect: function (iKeyCode, event) {
           // output all potentially relevant key events - great for debugging!
           console.log("Pressed: " + iKeyCode + " --.--" + event.key);
-          // console.log(String.fromCharCode((96 <= iKeyCode && iKeyCode <= 105) ? iKeyCode-48 : iKeyCode)
-          // );
         },
       });
     } else {
       console.log("onScan already attached to document");
-      // onScan.setOptions(document, {
-      //   suffixKeyCodes: [13], // enter-key expected at the end of a scan
-      //   reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
-      //   timeBeforeScanTest: 3,
-      //   avgTimeByChar: 1,
-      //   scanButtonLongPressTime: 20,
-
-      //   // onScan: function (sCode, iQty) {
-      //   //   // Alternative to document.addEventListener('scan')
-      //   //   console.log("SCANNED!!")
-      //   //   console.log("Scanned: " + sCode);
-      //   // },
-      //   onScan: function (sCode, iQty) {
-      //     // Alternative to document.addEventListener('scan')
-      //     console.log("SCANNED!!");
-      //     console.log("Scanned: " + sCode);
-      //   },
-      // });
     }
   }
-  // document.addEventListener("textInput", function (e) {
-  //   //@ts-ignore
-  //   if (e.data.length >= 6) {
-  //     //@ts-ignore
-  //     console.log("IR scan textInput", e.data);
-  //     e.preventDefault();
-  //   }
-  // });
+  function scannerInputToType(partScannerInput: string): ScannerPartState {
+    var json = {} as { [key: string]: string };
+    if (partScannerInput) {
+      partScannerInput.split(",").forEach((item) => {
+        var key = item.split(":")[0];
+        var value = item.split(":")[1];
+        json[key] = value;
+        // json.push({[key]: value})
+      });
+      var pmVal = json.pm;
+      var qtyVal = json.qty;
+      var pdi = json.pdi;
+      var pc = json.pc;
+      var on = json.on;
+      var pbn = json.pbn;
 
-  // let UPC = "";
-  // document.addEventListener("keydown", function (e) {
-  //   console.log("keydown");
-  //   const textInput = e.key || String.fromCharCode(e.keyCode);
-  //   //@ts-ignore
-  //   const targetName = e.target.localName;
-  //   let newUPC = "";
-  //   if (textInput && textInput.length === 1 && targetName !== "input") {
-  //     UPC = UPC + textInput;
+      return { pm: pmVal, qty: Number(qtyVal), pdi, pc, on, pbn };
+    }
+    return { pm: "", qty: 0, pc: "" };
+  }
 
-  //     if (newUPC.length >= 6) {
-  //       console.log("barcode scanned:  ", newUPC);
-  //     }
-  //   }
-  // });
+  async function getPartInfoFromLCSC(pc: string, quantity: number) {
+    // fetch part info from LCSC
+    // return part info
+    try {
+      const res = await fetch("/api/parts", {
+        method: "POST",
+        body: JSON.stringify({ pc: pc, quantity }),
+      }).then((response) =>
+        response
+          .json()
+          .then((data) => ({ status: response.status, body: data }))
+      );
+      if (res.status !== 200) {
+        throw new Error(res.body.message);
+      }
+      console.log(res.body);
+    } catch (e: ErrorCallback | any) {
+      console.error(e.message);
+    }
+  }
 
-  // //@ts-ignore
-  // document.addEventListener("scan", function (sScancode, iQuantity) {
-  //   console.log("Scanned from event: " + sScancode);
-  //   console.log(sScancode)
-  //   // alert(iQuantity + 'x ' + sScancode);
-  //   // setScannerInput(sScancode);
-  //   // alert(iQuantity + "x " + sScancode);
-  // });
+  const formatVoltage = (voltage: any) => `${voltage} V`;
+  const formatResistance = (resistance: any) => `${resistance} Ω`;
+  const formatPower = (power: any) => `${power} W`;
+  const formatCurrent = (current: any) => `${current} A`;
+  const formatFrequency = (frequency: any) => `${frequency} Hz`;
+  const formatCapacitance = (capacitance: any) => `${capacitance} F`;
 
-  // if(document) {
-  //   //@ts-ignore
-  //   document.addEventListener('scanComplete', function(e) { console.log(e.detail) })
+  useEffect(() => {
+    if (scannerInput) {
+      let scanJson = JSON.parse(JSON.stringify(scannerInput));
+      if (scanJson) {
+        let partInfo = scannerInputToType(scanJson);
 
-  //   document.addEventListener('keydown', function(e) {
-  //     // add scan property to window if it does not exist
-  //     if(!window.hasOwnProperty('scan')) {
-  //       window.scan = []
-  //     }
-
-  //     // if key stroke appears after 10 ms, empty scan array
-  //     if(window.scan.length > 0 && (e.timeStamp - window.scan.slice(-1)[0].timeStamp) > 10) {
-  //       window.scan = []
-  //     }
-
-  //     // if key store is enter and scan array contains keystrokes
-  //     // dispatch `scanComplete` with keystrokes in detail property
-  //     // empty scan array after dispatching event
-  //     if(e.key === "Enter" && window.scan.length > 0) {
-  //       //@ts-ignore
-  //       let scannedString = window.scan.reduce(function(scannedString, entry) {
-  //         return scannedString + entry.key
-  //       }, "")
-  //       window.scan = []
-  //       return document.dispatchEvent(new CustomEvent('scanComplete', {detail: scannedString}))
-  //     }
-
-  //     // do not listen to shift event, since key for next keystroke already contains a capital letter
-  //     // or to be specific the letter that appears when that key is pressed with shift key
-  //     if(e.key !== "Shift") {
-  //       // push `key`, `timeStamp` and calculated `timeStampDiff` to scan array
-  //       let data = JSON.parse(JSON.stringify(e, ['key', 'timeStamp']))
-  //       data.timeStampDiff = window.scan.length > 0 ? data.timeStamp - window.scan.slice(-1)[0].timeStamp : 0;
-
-  //       window.scan.push(data)
-  //     }
-  //   })
-  // }
-
-  // if (typeof document === "undefined") {
-  //   // during server evaluation
-  // } else {
-  //   if (onScan.isAttachedTo(document) == false) {
-  //     onScan.attachTo(document, {
-  //       suffixKeyCodes: [13], // enter-key expected at the end of a scan
-  //       reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
-  //       timeBeforeScanTest: 3,
-  //       avgTimeByChar: 1,
-  //       scanButtonLongPressTime: 20,
-
-  //       onScan: function (sCode, iQty) {
-  //         // Alternative to document.addEventListener('scan')
-  //         console.log("SCANNED!!")
-  //         console.log("Scanned: " + sCode);
-  //       },
-  //       onKeyDetect: function (iKeyCode) {
-  //         // output all potentially relevant key events - great for debugging!
-  //         console.log("Pressed: " + iKeyCode);
-  //       },
-  //     });
-  //   }
-  //   //@ts-ignore
-  //   document.addEventListener("scan", function (sScancode, iQuantity) {
-  //     console.log("Scanned: " + sScancode);
-  //     setScannerInput(sScancode);
-  //     // alert(iQuantity + "x " + sScancode);
-  //   });
-  //   // during client's browser evaluation
-  //   // document.addEventListener("keypress", (e) => {
-  //   //   //usually scanners throw an 'Enter' key at the end of read
-  //   //   if (e.keyCode === 13) {
-  //   //     console.log(code);
-  //   //     /// code ready to use
-
-  //   //     setScannerInput(code);
-  //   //     code = "";
-  //   //   } else {
-  //   //     code += e.key; //while this is not an 'enter' it stores the every key
-  //   //   }
-
-  //   //   //run a timeout of 200ms at the first read and clear everything
-  //   //   if (!reading) {
-  //   //     reading = true;
-  //   //     setTimeout(() => {
-  //   //       code = "";
-  //   //       reading = false;
-  //   //     }, 1000); //200 works fine for me but you can adjust it
-  //   //   }
-  //   // });
-
-  //   // document.addEventListener('textInput', function (e){
-  //   //     //@ts-ignore
-  //   //     if(e.data.length >= 6){
-  //   //         //@ts-ignore
-  //   //         console.log('IR scan textInput', e.data);
-  //   //         //@ts-ignore
-  //   //         setScannerInput(e.data);
-  //   //         // document.querySelector("#scanner-input").innerHTML = "Scanned barcode: " + e.data;
-
-  //   //         e.preventDefault();
-  //   //     }
-  //   // });
-  // }
-
-  // if (document) {
-
-  //   document.addEventListener("keydown", function (e) {
-  //       let barcode = ""
-  //       let interval = setInterval(() => barcode = "", 20)
-  //       // if(interval) clearInterval(interval)
-  //       // if(e.code === "Enter") {
-  //       //     if(barcode) {
-  //       //         handleBarCode(barcode)
-  //       //     }
-  //       //     barcode = ""
-  //       //     return
-  //       // }
-
-  //       // if(e.key !== "Shift") {
-  //       //     barcode = barcode + e.key
-  //       // }
-  //       // console.log("keydown")
-  //     if (e.key === "Enter") {
-  //       console.log("Enter key pressed");
-  //       let code = e.code;
-  //       console.log(e.detail)
-  //       console.log(e)
-  //       console.log(code);
-  //       // let barcode= String.fromCharCode(code);
-
-  //     }
-  //     //   add scan property to window if it does not exist
-  //       if (!window.hasOwnProperty("scan")) {
-  //         window.scan = [];
-  //       }
-
-  //       // if key stroke appears after 10 ms, empty scan array
-  //       if (
-  //         window.scan.length > 0 &&
-  //         e.timeStamp - window.scan.slice(-1)[0].timeStamp > 10
-  //       ) {
-  //         window.scan = [];
-  //       }
-
-  //       // if key store is enter and scan array contains keystrokes
-  //       // dispatch `scanComplete` with keystrokes in detail property
-  //       // empty scan array after dispatching event
-  //       if (e.key === "Enter" && window.scan.length > 0) {
-  //         //@ts-ignore
-  //         let scannedString = window.scan.reduce(function (scannedString, entry) {
-  //           return scannedString + entry.key;
-  //         }, "");
-  //         window.scan = [];
-  //         setScannerInput(scannedString);
-  //         return document.dispatchEvent(
-  //           new CustomEvent("scanComplete", { detail: scannedString })
-  //         );
-  //       }
-
-  //       // do not listen to shift event, since key for next keystroke already contains a capital letter
-  //       // or to be specific the letter that appears when that key is pressed with shift key
-  //       if (e.key !== "Shift") {
-  //         // push `key`, `timeStamp` and calculated `timeStampDiff` to scan array
-  //         barcode = barcode + e.key
-  //         let data = JSON.parse(JSON.stringify(e, ["key", "timeStamp"]));
-  //         data.timeStampDiff =
-  //           window.scan.length > 0
-  //             ? data.timeStamp - window.scan.slice(-1)[0].timeStamp
-  //             : 0;
-
-  //         window.scan.push(data);
-  //       }
-  //       console.log(barcode)
-  //   });
-  //   document.addEventListener("scanComplete", function (e) {
-  //     //@ts-ignore
-  //     console.log(e.detail);
-  //   });
-  // }
-  //   useEffect(() => {
-  //     let scannedBarcode = '';
-  //     if (window) {
-  //       window.onkeyup = (e) => {
-  //         let barcode = "";
-  //         let code = e.keyCode ? e.keyCode : e.which;
-  //         barcode = barcode + String.fromCharCode(code);
-  //         if (code === ENTER_KEY) {
-  //             console.log("DISPATCHING: " + barcode);
-  //             scannedBarcode = barcode
-  //             barcode = '';
-  //           }
-  //     };
-  //     }
-  //   }, []);
+        getPartInfoFromLCSC(partInfo.pc, partInfo.qty);
+      }
+    }
+  }, [scannerInput]);
 
   return (
     <Stack gap={"sm"} style={{ overflowX: "hidden" }}>
@@ -361,9 +131,99 @@ export default function DashboardPage() {
       ></motion.div>
       {/* <div id="scanner-input">Scanner input:</div> */}
       <Group>
+      <TextInput placeholder="Manual input" onChange={(event) => {setManualScannerInput(event.currentTarget.value)}} value={manualScannerInput}/>
+        <Button onClick={() => {
+           if (manualScannerInput) {
+            let scanJson = JSON.parse(JSON.stringify(manualScannerInput));
+            if (scanJson) {
+              let partInfo = scannerInputToType(scanJson);
+      
+              getPartInfoFromLCSC(partInfo.pc, partInfo.qty);
+            }
+            setManualScannerInput("");
+          }
+        }}>Manual Add</Button>
         <Text>Input: </Text>
         <Text>{scannerInput}</Text>
+        
       </Group>
+      {parts && (
+          <Table.ScrollContainer minWidth={500}>
+            <Table>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Image</Table.Th>
+                  <Table.Th>ID</Table.Th>
+                  <Table.Th>Title</Table.Th>
+                  <Table.Th>ProductCode</Table.Th>
+                  <Table.Th>Quantity</Table.Th>
+                  <Table.Th>ProductID</Table.Th>
+                  <Table.Th>ProductModel</Table.Th>
+                  <Table.Th>ProductDescription</Table.Th>
+                  <Table.Th>ParentCatalogName</Table.Th>
+                  <Table.Th>CatalogName</Table.Th>
+                  <Table.Th>BrandName</Table.Th>
+                  <Table.Th>EncapStandard</Table.Th>
+                  {/* <Table.Th>ProductImages</Table.Th> */}
+                  <Table.Th>PdfLink</Table.Th>
+                  <Table.Th>ProductLink</Table.Th>
+                  {/* <Table.Th>Prices</Table.Th> */}
+                  <Table.Th>Price</Table.Th>
+                  <Table.Th>Voltage</Table.Th>
+                  <Table.Th>Resistance</Table.Th>
+                  <Table.Th>Power</Table.Th>
+                  <Table.Th>Current</Table.Th>
+                  <Table.Th>Tolerance</Table.Th>
+                  <Table.Th>Frequency</Table.Th>
+                  <Table.Th>Capacitance</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {parts.map((element) => (
+                  <Table.Tr key={element.id}>
+                    <Table.Td>
+                      <img
+                        src={element.productImages[0]}
+                        alt={element.title}
+                        width="100"
+                        height="100"
+                      />
+                    </Table.Td>
+                    <Table.Td>{element.id}</Table.Td>
+                    <Table.Td>{element.title}</Table.Td>
+                    <Table.Td>{element.productCode}</Table.Td>
+                    <Table.Td>{element.quantity}</Table.Td>
+                    <Table.Td>{element.productId}</Table.Td>
+                    <Table.Td>{element.productModel}</Table.Td>
+                    <Table.Td>{element.productDescription}</Table.Td>
+                    <Table.Td>{element.parentCatalogName}</Table.Td>
+                    <Table.Td>{element.catalogName}</Table.Td>
+                    <Table.Td>{element.brandName}</Table.Td>
+                    <Table.Td>{element.encapStandard}</Table.Td>
+                    {/* <Table.Td>{element.productImages.join(", ")}</Table.Td> */}
+                    <Table.Td>{element.pdfLink}</Table.Td>
+                    <Table.Td>{element.productLink}</Table.Td>
+                    {/* <Table.Td>
+                    {element.prices
+                      .map((price) => `${price.ladder}: ${price.price}`)
+                      .join(", ")}
+                  </Table.Td> */}
+                    <Table.Td>{element.prices.at(0)?.price}</Table.Td>
+                    <Table.Td>{formatVoltage(element.voltage)}</Table.Td>
+                    <Table.Td>{formatResistance(element.resistance)}</Table.Td>
+                    <Table.Td>{formatPower(element.power)}</Table.Td>
+                    <Table.Td>{formatCurrent(element.current)}</Table.Td>
+                    <Table.Td>{element.tolerance}</Table.Td>
+                    <Table.Td>{formatFrequency(element.frequency)}</Table.Td>
+                    <Table.Td>
+                      {formatCapacitance(element.capacitance)}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        )}
       <Button
         onClick={() => {
           onScan.simulate(document, "1234567890123");
