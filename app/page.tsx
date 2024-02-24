@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 
 
 export default async function Home() {
+  //@ts-ignore
   const parts = await prisma.parts.findMany() as PartState[];
 
   return <DashboardPage loadedParts={parts}/>;

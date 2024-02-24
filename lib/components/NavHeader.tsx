@@ -9,36 +9,13 @@ import {
   Menu,
   Image,
 } from "@mantine/core";
-// import { signIn, signOut, useSession } from "next-auth/react";
 import classes from "./NavHeader.module.css";
-import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown, IconPlayerPlay } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
 const links = [
-  //   { link: "/about", label: "Features" },
-  //   {
-  //     link: "#1",
-  //     label: "Learn",
-  //     links: [
-  //       { link: "/docs", label: "Documentation" },
-  //       { link: "/resources", label: "Resources" },
-  //       { link: "/community", label: "Community" },
-  //       { link: "/blog", label: "Blog" },
-  //     ],
-  //   },
-  { link: "/presentation", label: "Präsentationen" },
-  { link: "/about", label: "Über uns" },
-  // { link: "/contact", label: "Kontaktieren" },
-  // {
-  //   link: "#2",
-  //   label: "Support",
-  //   links: [
-  //     { link: "/faq", label: "FAQ" },
-  //     { link: "/demo", label: "Book a demo" },
-  //     { link: "/forums", label: "Forums" },
-  //   ],
-  // },
+  { link: "/categories", label: "Categories" },
+  { link: "/about", label: "About Us" },
 ] as {
   link: string;
   label: string;
@@ -46,8 +23,6 @@ const links = [
 }[];
 
 export default function NavHeader() {
-  // const { data: session } = useSession();
-  const [opened, { toggle }] = useDisclosure(false);
   const router = useRouter();
 
   const items = links.map((link) => {
@@ -117,36 +92,12 @@ export default function NavHeader() {
             <Button
               rightSection={<IconPlayerPlay />}
               onClick={() =>
-                // router.push("/presentation?playRandom=true")
-                router.push("/presentation")
+                router.push("/add")
               }
             >
-              Spielen
+              Add Part
             </Button>
           }
-          {/* {session ? (
-            <Group>
-              <Button
-                onClick={() => {
-                  signOut();
-                }}
-              >
-                Log out
-              </Button>
-            </Group>
-          ) : (
-            <Group>
-              <Button
-                variant="default"
-                onClick={() => {
-                  signIn();
-                }}
-              >
-                Log in
-              </Button>
-              <Button onClick={() => {}}>Sign up</Button>
-            </Group>
-          )} */}
         </Group>
       </Container>
     </header>

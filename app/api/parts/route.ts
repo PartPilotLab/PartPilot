@@ -2,6 +2,16 @@ import { extractPartInfoFromLCSCResponse } from "@/lib/helper/lcsc_api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export async function GET(request: NextRequest) {
+  try {
+    const parts = await prisma.parts.findMany();
+    console.log("RETURNING PARTS");
+    return NextResponse.json({ status: 200, parts: parts });
+  } catch (error: ErrorCallback | any) {
+    return NextResponse.json({ status: 500, error: error });
+  }
+}
+
 export async function POST(request: NextRequest) {
   console.log("API");
   try {
