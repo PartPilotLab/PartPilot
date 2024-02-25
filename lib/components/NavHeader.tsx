@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 
 const links = [
   { link: "/categories", label: "Categories" },
+  { link: "/about", label: "Settings" },
   { link: "/about", label: "About Us" },
 ] as {
   link: string;

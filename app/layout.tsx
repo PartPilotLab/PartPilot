@@ -6,6 +6,8 @@ import NavHeader from "@/lib/components/NavHeader";
 import NavFooter from "@/lib/components/NavFooter";
 // import { Analytics } from "@vercel/analytics/react";
 import localFont from "next/font/local";
+import '@mantine/notifications/styles.css';
+import { Notifications } from '@mantine/notifications';
 
 // import GoogleAnalytics from "@/lib/components/GoogleAnalytics";
 // import { CookiesBanner } from "@/lib/components/CookieBanner";
@@ -70,6 +72,7 @@ export default async function RootLayout({
       <GoogleAnalytics GA_MEASUREMENT_ID="G-RCBF6LQ59X" /></Suspense> */}
       <body>
         <MantineProvider theme={theme}>
+          <Notifications />
           {
             <section style={{ padding: 0, margin: 0 }}>
               <nav style={{ height: "60px" }}>

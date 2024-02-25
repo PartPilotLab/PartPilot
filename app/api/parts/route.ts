@@ -1,11 +1,15 @@
 import { extractPartInfoFromLCSCResponse } from "@/lib/helper/lcsc_api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { NextApiRequest } from "next";
 
 export async function GET(request: NextRequest) {
   try {
-    const parts = await prisma.parts.findMany();
-    console.log("RETURNING PARTS");
+    console.log("GETTING PARTS");
+    
+    const {searchParams} = new URL(request.url);
+    const page = searchParams.get("page");
+    const parts = await prisma.parts.findMany({orderBy: {id: 'desc'}, take: 1, skip: page ? (parseInt(page) - 1) * 10 : 0});
     return NextResponse.json({ status: 200, parts: parts });
   } catch (error: ErrorCallback | any) {
     return NextResponse.json({ status: 500, error: error });
@@ -13,27 +17,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  console.log("API");
   try {
     const res = await request.json();
     console.log(res);
 
     const pcNumber = res.pc;
     console.log(pcNumber);
-    const LSCSPart = await fetch(
-      "https://wmsc.lcsc.com/wmsc/product/detail?productCode=" + pcNumber
-    )
-      .then((response) => {
-        return response.json();
-      })
-      .catch((e: ErrorCallback | any) => {
-        console.error(e.message);
-      });
-    const partInfo = extractPartInfoFromLCSCResponse(LSCSPart);
-    console.log(partInfo);
+
+    console.log(pcNumber);
     const partExists = await prisma.parts.findUnique({
       where: {
-        productCode: partInfo.productCode,
+        productCode: pcNumber,
       
       }
     });
@@ -53,6 +47,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: 500, error: "Part not updated" });
       }
     } else {
+      const LSCSPart = await fetch(
+        "https://wmsc.lcsc.com/wmsc/product/detail?productCode=" + pcNumber
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .catch((e: ErrorCallback | any) => {
+          console.error(e.message);
+        });
+      const partInfo = extractPartInfoFromLCSCResponse(LSCSPart);
+
       const partCreate = await prisma.parts.create({
         data: {
           title: partInfo.title,
@@ -77,9 +82,10 @@ export async function POST(request: NextRequest) {
           frequency: partInfo.frequency,
           capacitance: partInfo.capacitance,
         },
-      });    
+      });
+      const itemCount = await prisma.parts.aggregate({_count: true}); 
       if (partCreate) {
-        return NextResponse.json({ status: 200, body: partCreate, message: "Part created"});
+        return NextResponse.json({ status: 200, body: partCreate, itemCount: itemCount._count, message: "Part created"});
       } else {
         return NextResponse.json({ status: 500, error: "Part not created" });
       } 

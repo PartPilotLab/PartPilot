@@ -3,8 +3,12 @@ import { PartState } from "./part_state";
 
 export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
     const result = lcsc_response.result;
-    const productLink = `${result.catalogName}_${result.title.replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}`;
-  
+    // const productLink = `${result.catalogName}_${result.title.replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}`;
+    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/[\s-]/g, '_')}_${result.title.replace(/[\s-]/g, '_').replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}.html`;
+    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-')}_${result.title.replace(/\s/g, '-').replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}.html`;
+    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_')}_${result.productCode}.html`;
+    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-')}_${result.productCode}.html`;
+    const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-').replace(/\//g, '_')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-').replace(/\//g, '_')}_${result.productCode}.html`;
     // const paramVOList = result.paramVOList.reduce((acc: any, curr: any) => {
     //   acc[curr.paramNameEn] = curr.paramValueEnForSearch;
     //   return acc;
@@ -14,32 +18,6 @@ export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
         if(curr.paramNameEn == "Tolerance"){
           value = curr.paramValueEn
         }
-        // console.log(curr)
-        // console.log("UNIT")
-        // console.log(value)
-        // if (curr.paramUnitEn) {
-        //   try {
-        //     // Convert the value to SI units using mathjs
-        //     value = unit(value + curr.paramUnitEn).toNumber('SI');
-        //     // value = unit(curr.paramValueEn).toSI();
-        //     // value = unit(value).toSI();
-           
-        //   } catch (error) {
-        //     console.error(`Failed to convert ${curr.paramNameEn} to SI units: ${error}`);
-        //   }
-        // } else {
-        //   try {
-        //     value = bignumber(unit(curr.paramValueEn).toSI()).toNumber();
-
-        
-        //     // value = 1e-7;
-        //   } catch (error) {
-        //     console.error(`Failed to convert ${curr.paramNameEn} to SI units: ${error}`);
-        //   }
-        // }
-
-        console.log("VALUE")
-        console.log(value);
         acc[curr.paramNameEn] = value;
         return acc;
       }, {});
