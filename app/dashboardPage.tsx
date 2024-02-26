@@ -11,6 +11,7 @@ import {
   NumberInputHandlers,
   Pagination,
   Paper,
+  Select,
   Space,
   Stack,
   Table,
@@ -51,24 +52,23 @@ export interface ScannerPartState {
 enum Operations {
   ">",
   "<",
-  "="
+  "=",
+  "<=",
+  ">=",
 }
 export interface FilterState {
   productCode?: string;
-  productModel?: string;
   productTitle?: string;
   productDescription?: string; //Deep search
-
   parentCatalogName?: string;
-  brandName?: string;
   encapStandard?: string;
-  voltage?: {operation: Operations, value: number}; //operation referring to "<" ">" "="
-  resistance?: {operation: Operations, value: number};
-  power?: {operation: Operations, value: number};
-  current?: {operation: Operations, value: number};
+  voltage?: { operation: Operations | string; value: number }; //operation referring to "<" ">" "="
+  resistance?: { operation: Operations; value: number };
+  power?: { operation: Operations; value: number };
+  current?: { operation: Operations; value: number };
   tolerance?: string; //Selector
-  frequency?: {operation: Operations, value: number};
-  capacitance?: {operation: Operations, value: number}; //value is in pF
+  frequency?: { operation: Operations; value: number };
+  capacitance?: { operation: Operations; value: number }; //value is in pF
 }
 
 export default function DashboardPage({
@@ -84,13 +84,11 @@ export default function DashboardPage({
   const [isLoading, setLoading] = useState(false);
   const [itemCountState, setItemCountState] = useState(itemCount);
 
-  const [parts, setParts] = useState<PartState[]>(
-    loadedParts
-  );
-  const [searchResult, setSearchResult] = useState<PartState[]>();
-    const [searchFilter, setSearchFilter] = useState<FilterState>();
-    const [activePage, setPage] = useState(1);
-
+  const [parts, setParts] = useState<PartState[]>(loadedParts);
+  // const [searchResult, setSearchResult] = useState<PartState[]>();
+  const [isSearchResult, setIsSearchResult] = useState(false);
+  const [searchFilter, setSearchFilter] = useState<FilterState>();
+  const [activePage, setPage] = useState(1);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -162,8 +160,24 @@ export default function DashboardPage({
       return prevParts;
     });
   };
+
+  const handleSearchInputChange = (input: {
+    name: string;
+    value: string | { operation: Operations; value: number };
+  }) => {
+    // setSearchFilter({
+    //   ...searchResult,
+    //   [event.target.name]: event.target.value,
+    // });
+    setSearchFilter((prevFilter) => {
+      return {
+        ...prevFilter,
+        [input.name]: input.value,
+      };
+    });
+  };
+
   const addPartInState = (part: PartState) => {
-    
     setParts((prevParts) => {
       const newParts = [...prevParts, part];
       return newParts.sort((a, b) => b.id - a.id);
@@ -177,12 +191,12 @@ export default function DashboardPage({
     });
   };
 
-  async function searchParts() {
-    // setLoading(true);
+  async function searchParts(page: number) {
+    setLoading(true);
     try {
       const res = await fetch("/api/parts/search", {
         method: "POST",
-        body: JSON.stringify({}),
+        body: JSON.stringify({ filter: searchFilter, page: page }),
       }).then((response) =>
         response
           .json()
@@ -194,12 +208,18 @@ export default function DashboardPage({
       console.log(res.body);
       const response = res.body.parts as PartState[];
       if (response) {
-        setSearchResult(response);
+        // setSearchResult(response);
+        setParts(response);
+        if (!isSearchResult) {
+          setIsSearchResult(true);
+          setPage(page);
+        }
       }
       // setParts(res.body);
     } catch (e: ErrorCallback | any) {
       console.error(e.message);
     }
+    setLoading(false);
   }
 
   async function getParts(page: number) {
@@ -213,7 +233,7 @@ export default function DashboardPage({
       if (res.status !== 200) {
         throw new Error(res.body.message);
       }
-      console.log("GET PARTS")
+      console.log("GET PARTS");
       const response = res.body.parts as PartState[];
       if (response) {
         setParts(response);
@@ -225,9 +245,12 @@ export default function DashboardPage({
     setLoading(false);
   }
 
-  // useEffect(() => {
-  //  getParts(); 
-  // }, [activePage])
+  async function clearSearch() {
+    setSearchFilter(undefined);
+    setIsSearchResult(false);
+    setPage(1);
+    await getParts(1);
+  }
 
   //https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD/SMT_Samsung-Electro-Mechanics-CL10B104KB8NNNC_C1591.html
   async function getPartInfoFromLCSC(pc: string, quantity: number) {
@@ -244,7 +267,6 @@ export default function DashboardPage({
           .then((data) => ({ status: response.status, body: data }))
       );
       if (res.status !== 200) {
-        
         throw new Error(res.body.message);
       }
       if (res.body.message == "Part updated") {
@@ -259,12 +281,11 @@ export default function DashboardPage({
           title: "Part Added",
           message: `The part ${res.body.body.productCode} was successfully added!`,
         });
-        console.log("PART CREATED")
+        console.log("PART CREATED");
         // if(Math.ceil(itemCountState / itemsPerPage) > Math.ceil(res.body.itemCount)) {
 
         getParts(activePage);
         setItemCountState(res.body.itemCount);
-
       }
       // console.log(res.body);
       // await getParts();
@@ -290,7 +311,11 @@ export default function DashboardPage({
       }
       if (res.status == 200) {
         // deletePartInState(partId);
-        if(Math.ceil(itemCountState / itemsPerPage) > Math.ceil(res.body.itemCount) && activePage == Math.ceil(itemCountState / itemsPerPage)) {
+        if (
+          Math.ceil(itemCountState / itemsPerPage) >
+            Math.ceil(res.body.itemCount) &&
+          activePage == Math.ceil(itemCountState / itemsPerPage)
+        ) {
           navigatePage(activePage - 1);
           // setPage(activePage - 1);
         } else {
@@ -343,7 +368,11 @@ export default function DashboardPage({
 
   async function navigatePage(page: number) {
     setPage(page);
-    await getParts(page);
+    if (isSearchResult) {
+      await searchParts(page);
+    } else {
+      await getParts(page);
+    }
   }
 
   // const [visible, { toggle }] = useDisclosure(false);
@@ -357,11 +386,69 @@ export default function DashboardPage({
       ></motion.div>
       <Group>
         <TextInput
-         placeholder="ProductCode" onChange={(event) => {
-          const productCode = event.currentTarget.value;
-
-         }}/>
+          placeholder="ProductCode"
+          value={searchFilter?.productCode ?? ""}
+          onChange={(event) => {
+            // const productCode = event.currentTarget.value;
+            const productCode = event.currentTarget.value.replace(/\s/g, "");
+            handleSearchInputChange({
+              name: "productCode",
+              value: productCode,
+            });
+          }}
+        />
         <TextInput
+          placeholder="ProductTitle"
+          value={searchFilter?.productTitle ?? ""}
+          onChange={(event) => {
+            const productTitle = event.currentTarget.value;
+            handleSearchInputChange({
+              name: "productTitle",
+              value: productTitle,
+            });
+          }}
+        />
+
+        <TextInput
+          placeholder="ProductDescription"
+          value={searchFilter?.productDescription ?? ""}
+          onChange={(event) => {
+            const productDescription = event.currentTarget.value;
+            handleSearchInputChange({
+              name: "productDescription",
+              value: productDescription,
+            });
+          }}
+        />
+        <Group>
+          <NumberInput title="Voltage (V)" value={searchFilter?.voltage?.value} onChange={(input) => {
+            if(input) {
+             handleSearchInputChange({
+               name: "voltage",
+               value: {operation: searchFilter?.voltage?.operation as Operations, value: Number(input)},
+             });}
+          }}/>
+          <Select defaultValue={"="} value={searchFilter?.voltage?.operation.toString()} data={[">", "<", "=", "<=", ">="]} />
+        </Group>
+        <Button
+          onClick={() => {
+            searchParts(1);
+          }}
+        >
+          Search
+        </Button>
+        {isSearchResult ? (
+          <Button
+            onClick={() => {
+              clearSearch();
+            }}
+          >
+            Clear
+          </Button>
+        ) : (
+          <></>
+        )}
+        {/* <TextInput
           placeholder="Manual input"
           onChange={(event) => {
             setManualScannerInput(event.currentTarget.value);
@@ -382,7 +469,7 @@ export default function DashboardPage({
           }}
         >
           Manual Add
-        </Button>
+        </Button> */}
       </Group>
       {parts != null && parts.length > 0 ? (
         <Table.ScrollContainer minWidth={500}>
@@ -434,7 +521,7 @@ export default function DashboardPage({
         <Center>
           <Paper withBorder radius={"sm"} shadow="sm">
             <Stack p={"md"}>
-              <Image src="/images/start.svg" h={400} fit="contain"/>
+              <Image src="/images/start.svg" h={400} fit="contain" />
               <Text ta={"center"}>No parts found</Text>
               <Group justify="center" grow>
                 <Button onClick={() => getParts(1)}>Add Part</Button>
@@ -450,9 +537,13 @@ export default function DashboardPage({
         exit={{ opacity: 0 }}
         transition={{ delay: 0.6 }}
       ></motion.div>
-      <Pagination total={Math.ceil(itemCountState / itemsPerPage)} value={activePage} onChange={async (value: number) => {
-        await navigatePage(value)
-        }}/>
+      <Pagination
+        total={Math.ceil(itemCountState / itemsPerPage)}
+        value={activePage}
+        onChange={async (value: number) => {
+          await navigatePage(value);
+        }}
+      />
     </Stack>
   );
 }

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     
     const {searchParams} = new URL(request.url);
     const page = searchParams.get("page");
-    const parts = await prisma.parts.findMany({orderBy: {id: 'desc'}, take: 1, skip: page ? (parseInt(page) - 1) * 10 : 0});
+    const parts = await prisma.parts.findMany({orderBy: {id: 'desc'}, take: 10, skip: page ? (parseInt(page) - 1) * 10 : 0});
     return NextResponse.json({ status: 200, parts: parts });
   } catch (error: ErrorCallback | any) {
     return NextResponse.json({ status: 500, error: error });
