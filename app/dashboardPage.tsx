@@ -34,12 +34,13 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
+import ValueSearch, { ValueSearchRef } from "@/lib/components/search/ValueSearch";
 
-declare global {
-  interface Window {
-    scan: any;
-  }
-}
+// declare global {
+//   interface Window {
+//     scan: any;
+//   }
+// }
 
 export interface ScannerPartState {
   pbn?: string;
@@ -49,26 +50,21 @@ export interface ScannerPartState {
   qty: number;
   pdi?: string;
 }
-enum Operations {
-  ">",
-  "<",
-  "=",
-  "<=",
-  ">=",
-}
+type Operations = ">" | "<" | "=" | "<=" | ">=";
+
 export interface FilterState {
   productCode?: string;
   productTitle?: string;
   productDescription?: string; //Deep search
   parentCatalogName?: string;
   encapStandard?: string;
-  voltage?: { operation: Operations | string; value: number }; //operation referring to "<" ">" "="
-  resistance?: { operation: Operations; value: number };
-  power?: { operation: Operations; value: number };
-  current?: { operation: Operations; value: number };
+  voltage?: { operation: Operations | string | null; value: number | null}; //operation referring to "<" ">" "="
+  resistance?: { operation: Operations | string; value: number };
+  power?: { operation: Operations | string; value: number };
+  current?: { operation: Operations | string; value: number };
   tolerance?: string; //Selector
-  frequency?: { operation: Operations; value: number };
-  capacitance?: { operation: Operations; value: number }; //value is in pF
+  frequency?: { operation: Operations | string; value: number };
+  capacitance?: { operation: Operations | string; value: number }; //value is in pF
 }
 
 export default function DashboardPage({
@@ -89,6 +85,14 @@ export default function DashboardPage({
   const [isSearchResult, setIsSearchResult] = useState(false);
   const [searchFilter, setSearchFilter] = useState<FilterState>();
   const [activePage, setPage] = useState(1);
+
+  const voltageSearchRef = useRef<ValueSearchRef>(null);
+  const resistanceSearchRef = useRef<ValueSearchRef>(null);
+  const powerSearchRef = useRef<ValueSearchRef>(null);
+  const currentSearchRef = useRef<ValueSearchRef>(null);
+  const frequencySearchRef = useRef<ValueSearchRef>(null);
+  const capacitanceSearchRef = useRef<ValueSearchRef>(null);
+
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -194,9 +198,17 @@ export default function DashboardPage({
   async function searchParts(page: number) {
     setLoading(true);
     try {
+      let currentSearchFilter = searchFilter || {};
+      if(currentSearchFilter) {
+        currentSearchFilter.voltage = voltageSearchRef.current?.getSearchParameters();
+      }
+      console.log(voltageSearchRef.current?.getSearchParameters()
+    )
+      console.log(currentSearchFilter)
+
       const res = await fetch("/api/parts/search", {
         method: "POST",
-        body: JSON.stringify({ filter: searchFilter, page: page }),
+        body: JSON.stringify({ filter: currentSearchFilter, page: page }),
       }).then((response) =>
         response
           .json()
@@ -420,16 +432,45 @@ export default function DashboardPage({
             });
           }}
         />
-        <Group>
-          <NumberInput title="Voltage (V)" value={searchFilter?.voltage?.value} onChange={(input) => {
-            if(input) {
-             handleSearchInputChange({
-               name: "voltage",
-               value: {operation: searchFilter?.voltage?.operation as Operations, value: Number(input)},
-             });}
-          }}/>
-          <Select defaultValue={"="} value={searchFilter?.voltage?.operation.toString()} data={[">", "<", "=", "<=", ">="]} />
-        </Group>
+        <ValueSearch valueType="voltage" ref={voltageSearchRef}/>
+        <ValueSearch valueType="resistance" ref={resistanceSearchRef}/>
+        <ValueSearch valueType="power" ref={powerSearchRef}/>
+        <ValueSearch valueType="current" ref={currentSearchRef}/>
+        {/* <TextInput
+          placeholder="Tolerance"
+          value={searchFilter?.tolerance ?? ""}
+          onChange={(event) => {
+            const tolerance = event.currentTarget.value;
+            handleSearchInputChange({
+              name: "tolerance",
+              value: tolerance,
+            });
+          }}
+          /> */}
+        <ValueSearch valueType="frequency" ref={frequencySearchRef}/>
+        <ValueSearch valueType="capacitance" ref={capacitanceSearchRef}/>
+        {/* <Group>
+          <NumberInput
+            title="Voltage (V)"
+            value={searchFilter?.voltage?.value}
+            onChange={(input) => {
+              if (input) {
+                handleSearchInputChange({
+                  name: "voltage",
+                  value: {
+                    operation: searchFilter?.voltage?.operation as Operations,
+                    value: Number(input),
+                  },
+                });
+              }
+            }}
+          />
+          <Select
+            defaultValue={"="}
+            value={searchFilter?.voltage?.operation.toString()}
+            data={[">", "<", "=", "<=", ">="]}
+          />
+        </Group> */}
         <Button
           onClick={() => {
             searchParts(1);
