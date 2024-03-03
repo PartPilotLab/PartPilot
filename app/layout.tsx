@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@mantine/core/styles.css";
+import '@mantine/carousel/styles.css';
 import "./globals.css";
 import { ColorSchemeScript, MantineProvider, createTheme } from "@mantine/core";
 import NavHeader from "@/lib/components/NavHeader";

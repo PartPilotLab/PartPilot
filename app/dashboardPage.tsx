@@ -6,12 +6,14 @@ import {
   HoverCard,
   Image,
   LoadingOverlay,
+  MultiSelect,
   NavLink,
   NumberInput,
   NumberInputHandlers,
   Pagination,
   Paper,
   Select,
+  SimpleGrid,
   Space,
   Stack,
   Table,
@@ -27,14 +29,18 @@ import { PartState } from "@/lib/helper/part_state";
 import { get } from "http";
 import { format, round, unit } from "mathjs";
 import {
+  IconArrowLeftFromArc,
   IconLink,
   IconMinus,
   IconPdf,
   IconPlus,
+  IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import ValueSearch, { ValueSearchRef } from "@/lib/components/search/ValueSearch";
+import ValueSearch, {
+  ValueSearchRef,
+} from "@/lib/components/search/ValueSearch";
 
 // declare global {
 //   interface Window {
@@ -58,27 +64,31 @@ export interface FilterState {
   productDescription?: string; //Deep search
   parentCatalogName?: string;
   encapStandard?: string;
-  voltage?: { operation: Operations | string | null; value: number | null}; //operation referring to "<" ">" "="
-  resistance?: { operation: Operations | string; value: number };
-  power?: { operation: Operations | string; value: number };
-  current?: { operation: Operations | string; value: number };
+  voltage?: { operation: Operations | string | null; value: number | null }; //operation referring to "<" ">" "="
+  resistance?: { operation: Operations | string | null; value: number | null };
+  power?: { operation: Operations | string | null; value: number | null };
+  current?: { operation: Operations | string | null; value: number | null };
   tolerance?: string; //Selector
-  frequency?: { operation: Operations | string; value: number };
-  capacitance?: { operation: Operations | string; value: number }; //value is in pF
+  frequency?: { operation: Operations | string | null; value: number | null };
+  capacitance?: { operation: Operations | string | null; value: number | null }; //value is in pF
 }
 
 export default function DashboardPage({
   loadedParts,
   itemCount,
+  parentCatalogNames,
 }: {
   loadedParts: PartState[];
   itemCount: number;
+  parentCatalogNames: string[];
 }) {
   const itemsPerPage = 10;
 
   const [manualScannerInput, setManualScannerInput] = useState<string>("");
   const [isLoading, setLoading] = useState(false);
   const [itemCountState, setItemCountState] = useState(itemCount);
+  const [parentCatalogNamesState, setParentCatalogNamesState] =
+    useState<string[]>(parentCatalogNames);
 
   const [parts, setParts] = useState<PartState[]>(loadedParts);
   // const [searchResult, setSearchResult] = useState<PartState[]>();
@@ -92,7 +102,6 @@ export default function DashboardPage({
   const currentSearchRef = useRef<ValueSearchRef>(null);
   const frequencySearchRef = useRef<ValueSearchRef>(null);
   const capacitanceSearchRef = useRef<ValueSearchRef>(null);
-
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -167,12 +176,8 @@ export default function DashboardPage({
 
   const handleSearchInputChange = (input: {
     name: string;
-    value: string | { operation: Operations; value: number };
+    value: string | { operation: Operations; value: number } | null;
   }) => {
-    // setSearchFilter({
-    //   ...searchResult,
-    //   [event.target.name]: event.target.value,
-    // });
     setSearchFilter((prevFilter) => {
       return {
         ...prevFilter,
@@ -199,12 +204,22 @@ export default function DashboardPage({
     setLoading(true);
     try {
       let currentSearchFilter = searchFilter || {};
-      if(currentSearchFilter) {
-        currentSearchFilter.voltage = voltageSearchRef.current?.getSearchParameters();
+      if (currentSearchFilter) {
+        currentSearchFilter.voltage =
+          voltageSearchRef.current?.getSearchParameters();
+        currentSearchFilter.resistance =
+          resistanceSearchRef.current?.getSearchParameters();
+        currentSearchFilter.power =
+          powerSearchRef.current?.getSearchParameters();
+        currentSearchFilter.current =
+          currentSearchRef.current?.getSearchParameters();
+        currentSearchFilter.frequency =
+          frequencySearchRef.current?.getSearchParameters();
+        currentSearchFilter.capacitance =
+          capacitanceSearchRef.current?.getSearchParameters();
       }
-      console.log(voltageSearchRef.current?.getSearchParameters()
-    )
-      console.log(currentSearchFilter)
+      console.log(voltageSearchRef.current?.getSearchParameters());
+      console.log(currentSearchFilter);
 
       const res = await fetch("/api/parts/search", {
         method: "POST",
@@ -260,6 +275,12 @@ export default function DashboardPage({
   async function clearSearch() {
     setSearchFilter(undefined);
     setIsSearchResult(false);
+    voltageSearchRef?.current?.clear();
+    resistanceSearchRef?.current?.clear();
+    powerSearchRef?.current?.clear();
+    currentSearchRef?.current?.clear();
+    frequencySearchRef?.current?.clear();
+    capacitanceSearchRef?.current?.clear();
     setPage(1);
     await getParts(1);
   }
@@ -269,7 +290,6 @@ export default function DashboardPage({
     // fetch part info from LCSC
     // return part info
     try {
-      console.log("PARTS");
       const res = await fetch("/api/parts", {
         method: "POST",
         body: JSON.stringify({ pc: pc, quantity }),
@@ -297,6 +317,7 @@ export default function DashboardPage({
         // if(Math.ceil(itemCountState / itemsPerPage) > Math.ceil(res.body.itemCount)) {
 
         getParts(activePage);
+        setParentCatalogNamesState(res.body.parentCatalogNames);
         setItemCountState(res.body.itemCount);
       }
       // console.log(res.body);
@@ -333,6 +354,7 @@ export default function DashboardPage({
         } else {
           getParts(activePage);
         }
+        setParentCatalogNamesState(res.body.parentCatalogNames);
         setItemCountState(res.body.itemCount);
         notifications.show({
           title: "Part Deleted",
@@ -391,52 +413,24 @@ export default function DashboardPage({
 
   return (
     <Stack gap={"sm"} style={{ overflowX: "hidden" }}>
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0 }}
-      ></motion.div>
-      <Group>
-        <TextInput
-          placeholder="ProductCode"
-          value={searchFilter?.productCode ?? ""}
-          onChange={(event) => {
-            // const productCode = event.currentTarget.value;
-            const productCode = event.currentTarget.value.replace(/\s/g, "");
-            handleSearchInputChange({
-              name: "productCode",
-              value: productCode,
-            });
-          }}
-        />
-        <TextInput
-          placeholder="ProductTitle"
-          value={searchFilter?.productTitle ?? ""}
-          onChange={(event) => {
-            const productTitle = event.currentTarget.value;
-            handleSearchInputChange({
-              name: "productTitle",
-              value: productTitle,
-            });
-          }}
-        />
-
-        <TextInput
-          placeholder="ProductDescription"
-          value={searchFilter?.productDescription ?? ""}
-          onChange={(event) => {
-            const productDescription = event.currentTarget.value;
-            handleSearchInputChange({
-              name: "productDescription",
-              value: productDescription,
-            });
-          }}
-        />
-        <ValueSearch valueType="voltage" ref={voltageSearchRef}/>
-        <ValueSearch valueType="resistance" ref={resistanceSearchRef}/>
-        <ValueSearch valueType="power" ref={powerSearchRef}/>
-        <ValueSearch valueType="current" ref={currentSearchRef}/>
-        {/* <TextInput
+      ></motion.div> */}
+      <Paper
+        m={"sm"}
+        withBorder
+        shadow="md"
+        style={{ position: "sticky", top: "10px", overflow: "hidden" }}
+      >
+        <Stack p={"sm"}>
+          <SimpleGrid cols={{ lg: 6, sm: 2, xl: 6, md: 4 }} spacing={2}>
+            <ValueSearch valueType="voltage" ref={voltageSearchRef} />
+            <ValueSearch valueType="resistance" ref={resistanceSearchRef} />
+            <ValueSearch valueType="power" ref={powerSearchRef} />
+            <ValueSearch valueType="current" ref={currentSearchRef} />
+            {/* <TextInput
           placeholder="Tolerance"
           value={searchFilter?.tolerance ?? ""}
           onChange={(event) => {
@@ -447,49 +441,88 @@ export default function DashboardPage({
             });
           }}
           /> */}
-        <ValueSearch valueType="frequency" ref={frequencySearchRef}/>
-        <ValueSearch valueType="capacitance" ref={capacitanceSearchRef}/>
-        {/* <Group>
-          <NumberInput
-            title="Voltage (V)"
-            value={searchFilter?.voltage?.value}
-            onChange={(input) => {
-              if (input) {
+            <ValueSearch valueType="frequency" ref={frequencySearchRef} />
+            <ValueSearch valueType="capacitance" ref={capacitanceSearchRef} />
+
+            <TextInput
+              placeholder="Title"
+              value={searchFilter?.productTitle ?? ""}
+              radius={0}
+              onChange={(event) => {
+                const productTitle = event.currentTarget.value;
                 handleSearchInputChange({
-                  name: "voltage",
-                  value: {
-                    operation: searchFilter?.voltage?.operation as Operations,
-                    value: Number(input),
-                  },
+                  name: "productTitle",
+                  value: productTitle,
                 });
-              }
-            }}
-          />
-          <Select
-            defaultValue={"="}
-            value={searchFilter?.voltage?.operation.toString()}
-            data={[">", "<", "=", "<=", ">="]}
-          />
-        </Group> */}
-        <Button
-          onClick={() => {
-            searchParts(1);
-          }}
-        >
-          Search
-        </Button>
-        {isSearchResult ? (
-          <Button
-            onClick={() => {
-              clearSearch();
-            }}
-          >
-            Clear
-          </Button>
-        ) : (
-          <></>
-        )}
-        {/* <TextInput
+              }}
+            />
+            <TextInput
+              placeholder="Product Code"
+              value={searchFilter?.productCode ?? ""}
+              radius={0}
+              onChange={(event) => {
+                // const productCode = event.currentTarget.value;
+                const productCode = event.currentTarget.value.replace(
+                  /\s/g,
+                  ""
+                );
+                handleSearchInputChange({
+                  name: "productCode",
+                  value: productCode,
+                });
+              }}
+            />
+
+            <TextInput
+              placeholder="Description"
+              value={searchFilter?.productDescription ?? ""}
+              radius={0}
+              onChange={(event) => {
+                const productDescription = event.currentTarget.value;
+                handleSearchInputChange({
+                  name: "productDescription",
+                  value: productDescription,
+                });
+              }}
+            />
+            <Select
+              placeholder="Catalog"
+              value={searchFilter?.parentCatalogName ?? ""}
+              radius={0}
+              onChange={(value) => {
+                console.log("CHANGED");
+                handleSearchInputChange({
+                  name: "parentCatalogName",
+                  value: value,
+                });
+              }}
+              data={parentCatalogNamesState}
+              clearable
+              searchable
+            />
+            <Button
+              onClick={() => {
+                console.log("SEARCH");
+                searchParts(1);
+              }}
+              rightSection={<IconSearch />}
+              radius={0}
+            >
+              Search
+            </Button>
+            <Button
+              onClick={() => {
+                clearSearch();
+              }}
+              radius={0}
+              // disabled={!isSearchResult}
+            >
+              Clear
+            </Button>
+          </SimpleGrid>
+        </Stack>
+      </Paper>
+      {/* <TextInput
           placeholder="Manual input"
           onChange={(event) => {
             setManualScannerInput(event.currentTarget.value);
@@ -511,80 +544,89 @@ export default function DashboardPage({
         >
           Manual Add
         </Button> */}
-      </Group>
-      {parts != null && parts.length > 0 ? (
-        <Table.ScrollContainer minWidth={500}>
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Image</Table.Th>
-                <Table.Th>ID</Table.Th>
-                <Table.Th>Title</Table.Th>
-                <Table.Th>ProductCode</Table.Th>
-                <Table.Th>Quantity</Table.Th>
-                <Table.Th>Quantity Actions</Table.Th>
-                <Table.Th>ProductID</Table.Th>
-                <Table.Th>ProductModel</Table.Th>
-                <Table.Th>ProductDescription</Table.Th>
-                <Table.Th>ParentCatalogName</Table.Th>
-                <Table.Th>CatalogName</Table.Th>
-                <Table.Th>BrandName</Table.Th>
-                <Table.Th>EncapStandard</Table.Th>
-                {/* <Table.Th>ProductImages</Table.Th> */}
-                <Table.Th>Pdf</Table.Th>
-                <Table.Th>Link</Table.Th>
-                {/* <Table.Th>Prices</Table.Th> */}
-                <Table.Th>Price</Table.Th>
-                <Table.Th>Voltage</Table.Th>
-                <Table.Th>Resistance</Table.Th>
-                <Table.Th>Power</Table.Th>
-                <Table.Th>Current</Table.Th>
-                <Table.Th>Tolerance</Table.Th>
-                <Table.Th>Frequency</Table.Th>
-                <Table.Th>Capacitance</Table.Th>
-                <Table.Th>Delete</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {parts.map((element) => (
-                <PartItem
-                  key={element.id}
-                  part={element}
-                  isLoading={isLoading}
-                  updatePartQuantity={updatePartQuantity}
-                  deletePart={deletePart}
-                />
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      ) : (
-        <Center>
-          <Paper withBorder radius={"sm"} shadow="sm">
-            <Stack p={"md"}>
-              <Image src="/images/start.svg" h={400} fit="contain" />
-              <Text ta={"center"}>No parts found</Text>
-              <Group justify="center" grow>
-                <Button onClick={() => getParts(1)}>Add Part</Button>
-                <Button onClick={() => getParts(1)}>Refresh</Button>
-              </Group>
-            </Stack>
-          </Paper>
-        </Center>
-      )}
-      <motion.div
+      <Paper p={"sm"}>
+        <Stack>
+          {parts != null && parts.length > 0 ? (
+            <Table.ScrollContainer minWidth={500}>
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Image</Table.Th>
+                    {/* <Table.Th>ID</Table.Th> */}
+                    <Table.Th>Title</Table.Th>
+                    <Table.Th>ProductCode</Table.Th>
+                    <Table.Th>Quantity</Table.Th>
+                    <Table.Th>Quantity Actions</Table.Th>
+                    <Table.Th>ProductID</Table.Th>
+                    <Table.Th>ProductModel</Table.Th>
+                    <Table.Th>Description</Table.Th>
+                    <Table.Th>ParentCatalogName</Table.Th>
+                    <Table.Th>CatalogName</Table.Th>
+                    <Table.Th>BrandName</Table.Th>
+                    <Table.Th>EncapStandard</Table.Th>
+                    {/* <Table.Th>ProductImages</Table.Th> */}
+                    <Table.Th>Pdf</Table.Th>
+                    <Table.Th>Link</Table.Th>
+                    {/* <Table.Th>Prices</Table.Th> */}
+                    <Table.Th>Price</Table.Th>
+                    <Table.Th>Voltage</Table.Th>
+                    <Table.Th>Resistance</Table.Th>
+                    <Table.Th>Power</Table.Th>
+                    <Table.Th>Current</Table.Th>
+                    <Table.Th>Tolerance</Table.Th>
+                    <Table.Th>Frequency</Table.Th>
+                    <Table.Th>Capacitance</Table.Th>
+                    <Table.Th>Delete</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {parts.map((element) => (
+                    <PartItem
+                      key={element.id}
+                      part={element}
+                      isLoading={isLoading}
+                      updatePartQuantity={updatePartQuantity}
+                      deletePart={deletePart}
+                    />
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+          ) : (
+            // <Center>
+            //   <Paper withBorder radius={"sm"} shadow="sm">
+            //     <Stack p={"md"}>
+            //       <Image src="/images/start.svg" h={400} fit="contain" />
+            //       <Text ta={"center"}>No parts found</Text>
+            //       <Group justify="center" grow>
+            //         <Button onClick={() => getParts(1)}>Add Part</Button>
+            //         <Button onClick={() => getParts(1)}>Refresh</Button>
+            //       </Group>
+            //     </Stack>
+            //   </Paper>
+            // </Center>
+            <Paper w={"100%"} shadow="sm" withBorder>
+              <Text p={"sm"}>No Parts Found</Text>
+            </Paper>
+          )}
+          <Group>
+            <Pagination
+              total={Math.ceil(itemCountState / itemsPerPage)}
+              value={activePage}
+              onChange={async (value: number) => {
+                await navigatePage(value);
+              }}
+            />
+            <Text c="dimmed">({itemCountState})</Text>
+          </Group>
+        </Stack>
+      </Paper>
+      {/* <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ delay: 0.6 }}
-      ></motion.div>
-      <Pagination
-        total={Math.ceil(itemCountState / itemsPerPage)}
-        value={activePage}
-        onChange={async (value: number) => {
-          await navigatePage(value);
-        }}
-      />
+      ></motion.div> */}
     </Stack>
   );
 }
@@ -617,8 +659,20 @@ function PartItem({
           height="100"
         />
       </Table.Td>
-      <Table.Td>{part.id}</Table.Td>
-      <Table.Td>{part.title}</Table.Td>
+      {/* <Table.Td>{part.id}</Table.Td> */}
+      <Table.Td><Stack gap={"sm"}>{part.title}
+      <NavLink
+          href={"/part/" + part.id}
+          // target="_blank"
+          label="Details"
+          active
+          leftSection={
+            <ThemeIcon>
+              <IconArrowLeftFromArc />
+            </ThemeIcon>
+          }
+        />
+      </Stack></Table.Td>
       <Table.Td>{part.productCode}</Table.Td>
       <Table.Td>{part.quantity}</Table.Td>
       <Table.Td>

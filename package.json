@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@mantine/core": "^7.5.3",
-    "@mantine/hooks": "^7.5.3",
-    "@mantine/notifications": "^7.5.3",
+    "@mantine/carousel": "^7.6.1",
+    "@mantine/core": "^7.6.1",
+    "@mantine/hooks": "^7.6.1",
+    "@mantine/notifications": "^7.6.1",
     "@tabler/icons-react": "^2.47.0",
+    "embla-carousel-react": "^7.1.0",
     "framer-motion": "^11.0.5",
     "lodash": "^4.17.21",
     "mathjs": "^12.4.0",

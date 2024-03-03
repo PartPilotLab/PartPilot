@@ -84,8 +84,10 @@ export async function POST(request: NextRequest) {
         },
       });
       const itemCount = await prisma.parts.aggregate({_count: true}); 
+      const parentCatalogNamesRaw = await prisma.parts.groupBy({by: ['parentCatalogName']})
+      const parentCatalogNames = parentCatalogNamesRaw.map(item => item.parentCatalogName);
       if (partCreate) {
-        return NextResponse.json({ status: 200, body: partCreate, itemCount: itemCount._count, message: "Part created"});
+        return NextResponse.json({ status: 200, body: partCreate, itemCount: itemCount._count, parentCatalogNames: parentCatalogNames, message: "Part created"});
       } else {
         return NextResponse.json({ status: 500, error: "Part not created" });
       } 

@@ -11,7 +11,8 @@ interface ValueSearchProps {
 type UnitPrefixes =
   | "p"
   | "n"
-  | "μ"
+  // | "μ"
+  | "u"
   | "m"
   | ""
   | "k"
@@ -33,7 +34,8 @@ type ValueType =
 const prefixes: UnitPrefixes[] = [
   "p",
   "n",
-  "μ",
+  // "μ",
+  "u",
   "m",
   "",
   "k",
@@ -64,7 +66,7 @@ const units: Record<ValueType, string[]> = Object.keys(baseUnits).reduce(
   {} as Record<ValueType, string[]>
 );
 
-const operations = ["<", ">", "=", "<=", ">="];
+const operations = ["=", "<", ">", "<=", ">="];
 
 export interface ValueSearchRef {
   getSearchParameters: () => { value: number | null; operation: string | null };
@@ -82,7 +84,11 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
         let siValue = value;
         if (value !== null && unit !== null && valueType !== "capacitance") {
           //   siValue = unit(value, unit).toNumber('SI');
-          siValue = math.unit(value, unit).toSI().value;
+          let adjustedUnit = unit;
+          if (unit === "Ω") {
+            adjustedUnit = "ohm";
+          }
+          siValue = math.unit(value, adjustedUnit).toSI().value;
         }
         if (valueType === "capacitance" && value !== null && unit !== null) {
           siValue = math.unit(value, unit).toNumber("pF");
@@ -91,7 +97,7 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
       },
       clear: () => {
         setValue(null);
-        setUnit(units[valueType][0]);
+        setUnit(baseUnits[valueType]);
         setOperation(operations[0]);
       },
     }));
@@ -103,21 +109,28 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
             data={operations}
             value={operation}
             onChange={setOperation}
-            w={"10%"}
+            w={"20%"}
+            size="sm"
+            radius={0}
             //   variant="unstyled"
           />
           <NumberInput
             placeholder={valueType.charAt(0).toUpperCase() + valueType.slice(1)}
             value={value ?? ""}
             onChange={(value) => setValue(Number(value))}
-            w={"80%"}
+            w={"55%"}
+            size="sm"
+            radius={0}
             //   variant="unstyled"
           />
           <Select
             data={units[valueType]}
             value={unit}
             onChange={setUnit}
-            w={"10%"}
+            w={"25%"}
+            size="sm"
+            radius={0}
+            rightSection={null}
             // variant="unstyled"
           />
         </Group>

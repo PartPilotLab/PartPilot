@@ -32,18 +32,18 @@ import { NextRequest, NextResponse } from "next/server";
 function handleWhereClause() {}
 // For advanced search: fetch all distinct values for each column
 // Then have a selector allowing to choose from those values
-function convertOperation(operation: string){
+function convertOperation(operation: string) {
   switch (operation) {
-    case '>':
-      return 'gt';
-    case '>=':
-      return 'gte';
-    case '=':
-      return 'equals';
-    case '<':
-      return 'lt';
-    case '<=':
-      return 'lte';
+    case ">":
+      return "gt";
+    case ">=":
+      return "gte";
+    case "=":
+      return "equals";
+    case "<":
+      return "lt";
+    case "<=":
+      return "lte";
     default:
       throw new Error(`Invalid operation: ${operation}`);
   }
@@ -52,19 +52,26 @@ function convertOperation(operation: string){
 export async function POST(request: NextRequest) {
   try {
     const res = await request.json();
-    console.log(res)
+    console.log(res);
     const filter = res.filter;
     console.log(filter);
     const page = res.page;
-
-    const productCode = filter.productCode;
 
     let where: Prisma.PartsWhereInput = {
       productCode: {
         contains: filter.productCode,
       },
+      title: {
+        contains: filter.productTitle,
+      },
+      productDescription: {
+        contains: filter.productDescription,
+      },
+      parentCatalogName: {
+        // contains: filter.parentCatalogName,
+        equals: filter.parentCatalogName,
+      }
     };
-
 
     // Add conditions based on the filter object
     // for (const key in filter) {
@@ -75,7 +82,7 @@ export async function POST(request: NextRequest) {
     //         // gt: filter[key].value,
     //         // convertOperation(filter[key].operation): filter[key].value,
     //         "gt": filter[key].value,
-            
+
     //       }
     //     }
     //     // where[key as keyof Prisma.PartsWhereInput] = {
@@ -85,12 +92,17 @@ export async function POST(request: NextRequest) {
     // }
 
     for (const key in filter) {
-      if (filter[key].value !== undefined && filter[key].operation !== undefined) {
+      if (
+        filter[key].value !== undefined &&
+        filter[key].operation !== undefined
+      ) {
         let operation = convertOperation(filter[key].operation);
         let temp: Prisma.PartsWhereInput = {};
-        (temp as any)[key] = {
-          [operation]: filter[key].value,
-        };
+        if (filter[key].value) {
+          (temp as any)[key] = {
+            [operation]: filter[key].value,
+          };
+        }
         where = { ...where, ...temp };
       }
     }

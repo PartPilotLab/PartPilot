@@ -10,12 +10,13 @@ import {
   Image,
 } from "@mantine/core";
 import classes from "./NavHeader.module.css";
-import { IconChevronDown, IconPlayerPlay } from "@tabler/icons-react";
+import { IconChevronDown, IconPlayerPlay, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
 const links = [
+  { link: "/", label: "Dashboard" },
   { link: "/categories", label: "Categories" },
-  { link: "/about", label: "Settings" },
+  // { link: "/about", label: "Settings" },
   { link: "/about", label: "About Us" },
 ] as {
   link: string;
@@ -91,7 +92,7 @@ export default function NavHeader() {
           </Group>
           {
             <Button
-              rightSection={<IconPlayerPlay />}
+              rightSection={<IconPlus />}
               onClick={() =>
                 router.push("/add")
               }
