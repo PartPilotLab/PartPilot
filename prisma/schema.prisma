@@ -15,25 +15,25 @@ datasource db {
 
 model Parts {
   id       Int    @id @default(autoincrement())
-  title    String
-  quantity Int
+  title    String?
+  quantity Int      @default(0)
 
-  productId          Int
+  productId          Int?
   productCode        String   @unique
-  productModel       String
-  productDescription String
+  productModel       String?
+  productDescription String?
 
-  parentCatalogName String
-  catalogName       String
-  brandName         String
+  parentCatalogName String?
+  catalogName       String?
+  brandName         String?
 
-  encapStandard String
+  encapStandard String?
 
   productImages String[]
-  pdfLink       String
-  productLink   String
+  pdfLink       String?
+  productLink   String?
 
-  prices Json
+  prices Json?
 
   voltage     Int?
   capacitance Int?

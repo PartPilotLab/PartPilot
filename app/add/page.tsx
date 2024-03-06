@@ -10,6 +10,7 @@ import {
   Button,
   SimpleGrid,
   Grid,
+  NumberInput,
 } from "@mantine/core";
 import { useRef, useState } from "react";
 import { scannerInputToType } from "../dashboardPage";
@@ -17,6 +18,39 @@ import { notifications } from "@mantine/notifications";
 import { PartState } from "@/lib/helper/part_state";
 
 export default function Add() {
+  const partStateInstance = {
+    title: "",
+    quantity: 0,
+    productId: 0,
+    productCode: "test",
+    productModel: "",
+    productDescription: "",
+    parentCatalogName: "",
+    catalogName: "",
+    brandName: "",
+    encapStandard: "",
+    productImages: [],
+    pdfLink: "",
+    productLink: undefined,
+    voltage: undefined,
+    resistance: undefined,
+    power: undefined,
+    current: undefined,
+    tolerance: undefined,
+    frequency: undefined,
+    capacitance: undefined,
+    prices: [] as { ladder: string; price: number }[],
+    // createdAt: undefined as Date | undefined,
+    // updatedAt: undefined as Date | undefined,
+  };
+
+  const refs = (
+    Object.keys(partStateInstance) as Array<keyof PartState>
+  ).reduce((acc, key) => {
+    acc[key] = useRef(null);
+    return acc;
+  }, {} as { [K in keyof PartState]: React.RefObject<HTMLInputElement> });
+
   const [formData, setFormData] = useState<PartState>();
   const inputRefs = {
     scannerInput: useRef<HTMLInputElement>(null),
@@ -24,6 +58,10 @@ export default function Add() {
     title: useRef<any>(null),
     // Add more refs as needed
   };
+
+  const inputRefTitle = useRef<any>(null);
+  const inputRefQuantity = useRef<any>(null);
+
   function setInputRefs() {
     inputRefs.title.current = formData?.title ?? null;
   }
@@ -56,6 +94,16 @@ export default function Add() {
         });
         console.log(response.body.body);
         setFormData(response.body.body);
+        console.log(response.body.body);
+        // inputRefs.title.current.value = response.body.body.title;
+        // inputRefTitle.current.value = response.body.body.title;
+        if (response.body.body) {
+          Object.keys(response.body.body).forEach((key) => {
+            if (refs[key as keyof PartState] && refs[key as keyof PartState]?.current) {
+              refs[key as keyof PartState]!.current!.value = response.body.body[key];
+            }
+          });
+        }
         setInputRefs();
       } else {
         notifications.show({
@@ -117,9 +165,35 @@ export default function Add() {
                       Autocomplete
                     </Button>
                   </Grid.Col>
-                  <Grid.Col span={6}>
-                    <TextInput placeholder="Title" ref={inputRefs.title} />
-                  </Grid.Col>
+                  {/* <Grid.Col span={6}>
+                    <TextInput placeholder="Title" ref={inputRefTitle} />
+                  </Grid.Col> */}
+                  {Object.keys(partStateInstance).map((key) => {
+                    return key == "quantity" ? (
+                      <Grid.Col span={6} key={key}>
+                        <NumberInput ref={refs[key as keyof PartState]}
+                          placeholder={key}/>
+                      </Grid.Col>
+
+                    ) : key == "prices" ? (
+                      <Grid.Col span={12} key={key}>
+                        <Paper>
+                          <Group>
+                          {Object.entries(refs.prices).map(([key, value]) => {return (<Text>{refs[key as keyof PartState]?.current?.value}</Text>)})}                 
+                          </Group>
+                        </Paper>
+                      </Grid.Col>
+
+                    ) : (
+                      <Grid.Col span={6} key={key}>
+                        <TextInput
+                          // key={key}
+                          ref={refs[key as keyof PartState]}
+                          placeholder={key}
+                        />
+                      </Grid.Col>
+                    );
+                  })}
                 </Grid>
               </Stack>
             </Tabs.Panel>

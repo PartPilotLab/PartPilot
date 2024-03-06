@@ -6,7 +6,8 @@ export async function POST(request: NextRequest) {
       const res = await request.json();
       console.log(res);
   
-      const pcNumber = res.pc;
+      const pcNumber = res.productCode;
+      console.log(pcNumber);
 
       const LSCSPart = await fetch(
         "https://wmsc.lcsc.com/wmsc/product/detail?productCode=" + pcNumber

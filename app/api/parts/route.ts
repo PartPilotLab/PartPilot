@@ -19,12 +19,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const res = await request.json();
-    console.log(res);
-
     const pcNumber = res.pc;
-    console.log(pcNumber);
-
-    console.log(pcNumber);
     const partExists = await prisma.parts.findUnique({
       where: {
         productCode: pcNumber,
