@@ -48,6 +48,25 @@ import ValueSearch, {
 //   }
 // }
 
+export function scannerInputToType(partScannerInput: string): ScannerPartState {
+  var json = {} as { [key: string]: string };
+  if (partScannerInput) {
+    partScannerInput.split(",").forEach((item) => {
+      var key = item.split(":")[0];
+      var value = item.split(":")[1];
+      json[key] = value;
+    });
+    var pmVal = json.pm;
+    var qtyVal = json.qty;
+    var pdi = json.pdi;
+    var pc = json.pc;
+    var on = json.on;
+    var pbn = json.pbn;
+
+    return { pm: pmVal, qty: Number(qtyVal), pdi, pc, on, pbn };
+  }
+  return { pm: "", qty: 0, pc: "", error: true};
+}
 export interface ScannerPartState {
   pbn?: string;
   on?: string;
@@ -55,6 +74,7 @@ export interface ScannerPartState {
   pm: string;
   qty: number;
   pdi?: string;
+  error?: boolean;
 }
 type Operations = ">" | "<" | "=" | "<=" | ">=";
 
@@ -141,25 +161,7 @@ export default function DashboardPage({
     }
   }, []);
 
-  function scannerInputToType(partScannerInput: string): ScannerPartState {
-    var json = {} as { [key: string]: string };
-    if (partScannerInput) {
-      partScannerInput.split(",").forEach((item) => {
-        var key = item.split(":")[0];
-        var value = item.split(":")[1];
-        json[key] = value;
-      });
-      var pmVal = json.pm;
-      var qtyVal = json.qty;
-      var pdi = json.pdi;
-      var pc = json.pc;
-      var on = json.on;
-      var pbn = json.pbn;
-
-      return { pm: pmVal, qty: Number(qtyVal), pdi, pc, on, pbn };
-    }
-    return { pm: "", qty: 0, pc: "" };
-  }
+  
 
   const updatePartInState = (part: PartState) => {
     setParts((prevParts) => {
