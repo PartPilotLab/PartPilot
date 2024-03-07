@@ -1,0 +1,11 @@
+node_modules
+.next
+next-env.d.ts
+docker-compose.yml
+Dockerfile
+*.md
+.env
+LICENSE
+.gitignore
+Dockerfile
+docker-compose.yml

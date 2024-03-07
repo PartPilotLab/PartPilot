@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "start:migrate": "prisma migrate deploy && npm run start"
   },
   "dependencies": {
     "@mantine/carousel": "^7.6.1",

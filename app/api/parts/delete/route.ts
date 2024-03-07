@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       by: ["parentCatalogName"],
     });
     const parentCatalogNames = parentCatalogNamesRaw.map(
-      (item) => item.parentCatalogName
+      (item: any) => item.parentCatalogName
     );
     if (deletedPart) {
       return NextResponse.json({

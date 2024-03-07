@@ -1,0 +1,20 @@
+version: "3.0"
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=partpilot
+      - POSTGRES_PASSWORD=partpilotPass
+      - POSTGRES_DB=partpilotdb
+  partpilot:
+    image: nodetest
+    # build: .  # for local
+    depends_on:
+      - postgres
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://partpilot:partpilotPass@postgres:5432/partpilotdb?schema=public
