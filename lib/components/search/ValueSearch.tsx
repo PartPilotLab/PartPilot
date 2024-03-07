@@ -138,5 +138,5 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
     );
   }
 );
-
+ValueSearch.displayName = "ValueSearch";
 export default ValueSearch;
