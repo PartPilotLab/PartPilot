@@ -55,7 +55,7 @@ export default function Add() {
       }[],
     },
     validate: {
-      productCode: (value) => value.length > 0,
+      productCode: (value) => (value.length > 0 ? null : "Product Code is required"),
     },
   });
 
@@ -121,6 +121,54 @@ export default function Add() {
     // const data = await response.json();
     // setFormData(data);
   }
+
+  async function addPart() {
+    form.validate()
+    console.log("Test")
+    if(form.isValid()) {
+      const response = await fetch("/api/parts/create", {
+        method: "POST",
+        body: JSON.stringify(form.values),
+      }).then((response) =>
+      response
+        .json()
+        .then((data) => ({ status: response.status, body: data }))
+    );
+      if(response.status == 200) {
+        notifications.show({
+          title: "Part Add Successful",
+          message: `The part ${form.values.productCode} was added.`,
+        });
+        form.reset();
+      } else {
+        if(response.status == 500) {
+          if(response.body.error == "Part already exists") {
+            notifications.show({
+              title: "Part Add Failed",
+              message: `The part ${form.values.productCode} already exists.`,
+            });
+          } else {
+            notifications.show({
+              title: "Part Add Failed",
+              message: `The part could not be added. Please try again.`,
+            });
+          }
+        } else {
+          notifications.show({
+            title: "Part Add Failed",
+            message: `The part could not be added. Please try again.`,
+          });
+        }
+      }
+    } else {
+      notifications.show({
+        title: "Part Add Failed",
+        message: `Please fill out all required fields.`,
+      });
+    }
+    
+  }
+
   const router = useRouter();
   const units = {
     voltage: "V",
@@ -158,13 +206,13 @@ export default function Add() {
         </Carousel>
         <Paper p={"sm"}>
           <Stack p={"sm"}>
-            <form onSubmit={form.onSubmit((values) => console.log(values))}>
+            <form onSubmit={form.onSubmit(async (values) => await addPart())}>
               <Grid gutter={4}>
                 <Grid.Col span={12}>
                   <Paper p={"sm"} shadow="sm">
                     <Group justify="space-between"  pb={4}>
                       <Text>Autocomplete: </Text>
-                      <Tooltip label="Autocomple For LCSC">
+                      <Tooltip label="Autocomplete For LCSC">
                       <ThemeIcon>
                         <IconInfoCircle />
                       </ThemeIcon></Tooltip>
