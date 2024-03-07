@@ -3,11 +3,7 @@ import { PartState } from "./part_state";
 
 export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
     const result = lcsc_response.result;
-    // const productLink = `${result.catalogName}_${result.title.replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}`;
-    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/[\s-]/g, '_')}_${result.title.replace(/[\s-]/g, '_').replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}.html`;
-    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-')}_${result.title.replace(/\s/g, '-').replace(/\(/g, '-').replace(/\)/g, '')}_${result.productCode}.html`;
-    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_')}_${result.productCode}.html`;
-    // const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-')}_${result.productCode}.html`;
+  
     const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-').replace(/\//g, '_')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-').replace(/\//g, '_')}_${result.productCode}.html`;
     // const paramVOList = result.paramVOList.reduce((acc: any, curr: any) => {
     //   acc[curr.paramNameEn] = curr.paramValueEnForSearch;
