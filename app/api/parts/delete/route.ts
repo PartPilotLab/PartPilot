@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
       by: ["parentCatalogName"],
     });
     const parentCatalogNames = parentCatalogNamesRaw.map(
-      (item) => item.parentCatalogName
+      (item: any) => item.parentCatalogName
     );
     if (deletedPart) {
       return NextResponse.json({
