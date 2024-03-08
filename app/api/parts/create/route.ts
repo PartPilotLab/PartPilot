@@ -11,9 +11,11 @@ export async function POST(request: NextRequest) {
         }
       });
       if(partExists) {
+        console.log("Part already exists")
         return NextResponse.json({ status: 500, error: "Part already exists" });
 
       } else {
+        console.log("Creating part...")
         const partCreate = await prisma.parts.create({
             data: {
               title: res.title,

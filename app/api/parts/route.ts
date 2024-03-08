@@ -5,8 +5,7 @@ import { NextApiRequest } from "next";
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("GETTING PARTS");
-    
+   
     const {searchParams} = new URL(request.url);
     const page = searchParams.get("page");
     const parts = await prisma.parts.findMany({orderBy: {id: 'desc'}, take: 10, skip: page ? (parseInt(page) - 1) * 10 : 0});

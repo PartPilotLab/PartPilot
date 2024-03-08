@@ -1,0 +1,5 @@
+.grid {
+    @media (max-width: $mantine-breakpoint-sm) {
+        width: calc(100vw - var(--mantine-spacing-lg) * 3);
+      }
+}

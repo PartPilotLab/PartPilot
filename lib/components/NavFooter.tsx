@@ -1,38 +1,31 @@
 "use client";
-import { Text, Container, ActionIcon, Group, rem, Image } from "@mantine/core";
+import { Text, Container, ActionIcon, Group, rem, Image, ThemeIcon } from "@mantine/core";
 import {
   IconBrandTwitter,
   IconBrandYoutube,
   IconBrandInstagram,
+  IconBrandDiscord
 } from "@tabler/icons-react";
 import classes from "./NavFooter.module.css";
 import Link from "next/link";
+import { ReactNode } from "react";
 
 const data = [
   {
-    title: "Allgemein",
+    title: "Project",
     links: [
-      { label: "Impressum", link: "/impressum" },
-      { label: "Datenschutz", link: "/datenschutz" },
+      { label: "About Us", link: "/about", icon: undefined },
+      { label: "GitHub", link: "https://github.com/LenniM/PartPilot", icon: undefined },
     ],
   },
   {
-    title: "Projekt",
+    title: 'Community',
     links: [
-      { label: "Präsentationen", link: "/presentation" },
-      { label: "Über Uns", link: "/about" },
+      // { label: 'Join Discord', link: '#', icon: <IconBrandDiscord/> },
+      { label: 'Follow on Twitter/X', link: '#', icon: <IconBrandTwitter/> },
     ],
   },
-  // {
-  //   title: 'Community',
-  //   links: [
-  //     { label: 'Join Discord', link: '#' },
-  //     { label: 'Follow on Twitter', link: '#' },
-  //     { label: 'Email newsletter', link: '#' },
-  //     { label: 'GitHub discussions', link: '#' },
-  //   ],
-  // },
-];
+] as {title: string, links: {label: string, link: string, icon: undefined | ReactNode}[]}[];
 
 export default function NavFooter() {
   const groups = data.map((group) => {
@@ -41,8 +34,6 @@ export default function NavFooter() {
         <Text
           key={index}
           className={classes.link}
-          // href={link.link}
-          // onClick={(event) => event.preventDefault()}
         >
           {link.label}
         </Text>
@@ -61,36 +52,21 @@ export default function NavFooter() {
     <footer className={classes.footer}>
       <Container className={classes.inner}>
         <div className={classes.logo}>
-          {/* <MantineLogo size={30} /> */}
           <Image
             src="/images/rederadar-logo.png"
             alt="image"
             h={100}
             fit="contain"
           />
-          {/* <Text size="xs" c="dimmed" className={classes.description}>
-            Build fully functional accessible web applications faster than ever
-          </Text> */}
+
         </div>
         <div className={classes.groups}>{groups}</div>
       </Container>
       <Container className={classes.afterFooter}>
         <Text c="dimmed" size="sm">
-          © 2024 RedeRadar.de. All rights reserved. Built with ❤️ by Lenni and
+          © 2024 PartPilot. Built with ❤️ by Lenni and
           supporters.
         </Text>
-
-        {/* <Group gap={0} className={classes.social} justify="flex-end" wrap="nowrap">
-          <ActionIcon size="lg" color="gray" variant="subtle">
-            <IconBrandTwitter style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
-          </ActionIcon>
-          <ActionIcon size="lg" color="gray" variant="subtle">
-            <IconBrandYoutube style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
-          </ActionIcon>
-          <ActionIcon size="lg" color="gray" variant="subtle">
-            <IconBrandInstagram style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
-          </ActionIcon>
-        </Group> */}
       </Container>
     </footer>
   );

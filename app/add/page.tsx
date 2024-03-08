@@ -1,5 +1,5 @@
 "use client";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 import {
   Paper,
   Group,
@@ -17,22 +17,53 @@ import {
   Flex,
   Image,
   ThemeIcon,
+  LoadingOverlay,
 } from "@mantine/core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scannerInputToType } from "../dashboardPage";
 import { notifications } from "@mantine/notifications";
-import { PartState } from "@/lib/helper/part_state";
 import { useForm } from "@mantine/form";
 import { IconChevronLeft, IconInfoCircle, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { Carousel } from "@mantine/carousel";
+import onScan from "onscan.js";
 
 export default function Add() {
+
+  const [isLoading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   if (typeof document !== "undefined") {
+  //     if (onScan.isAttachedTo(document) == false) {
+  //       onScan.attachTo(document, {
+  //         suffixKeyCodes: [13], // enter-key expected at the end of a scan
+  //         keyCodeMapper: function (oEvent) {
+  //           if (oEvent.keyCode === 190) {
+  //             return ":";
+  //           }
+  //           if (oEvent.keyCode === 188) {
+  //             return ",";
+  //           }
+  //           return onScan.decodeKeyEvent(oEvent);
+  //         },
+  //         onScan: async function (sCode, iQty) {
+  //           if (sCode) {
+  //             setScannerInput(sCode);
+
+  //           }
+  //         },
+  //       });
+  //     } else {
+  //       console.log("onScan already attached to document");
+  //     }
+  //   }
+  // }, []);
+  
   const form = useForm({
     initialValues: {
       title: "",
-      quantity: undefined,
-      productId: undefined,
+      quantity: null,
+      productId: null,
       productCode: "",
       productModel: "",
       productDescription: "",
@@ -42,41 +73,39 @@ export default function Add() {
       encapStandard: "",
       productImages: [],
       pdfLink: "",
-      productLink: undefined,
-      tolerance: undefined,
-      voltage: undefined,
-      resistance: undefined,
-      power: undefined,
-      current: undefined,
-      frequency: undefined,
-      capacitance: undefined,
+      productLink: null,
+      tolerance: null,
+      voltage: null,
+      resistance: null,
+      power: null,
+      current: null,
+      frequency: null,
+      capacitance: null,
       prices: [] as {
         ladder: string;
         price: number;
       }[],
     },
     validate: {
-      productCode: (value) => (value.length > 0 ? null : "Product Code is required"),
+      productCode: (value) =>
+        value.length > 0 ? null : "Product Code is required",
     },
   });
 
-  const inputRefs = {
-    scannerInput: useRef<HTMLInputElement>(null),
-    productCode: useRef<HTMLInputElement>(null),
-    // Add more refs as needed
-  };
+  const [scannerInput, setScannerInput] = useState("");
+  const [productCode, setProductCode] = useState("");
+
 
   async function handleAutocomplete() {
-    const scannerInput = inputRefs.scannerInput.current?.value;
-    const productCode = inputRefs.productCode.current?.value;
-    const partInfoFromScanner = scannerInputToType(scannerInput ?? "");
+    const partInfoFromScanner = scannerInputToType(JSON.parse(JSON.stringify(scannerInput)) ?? "");
     const validScannerInput =
       partInfoFromScanner.pc != "" && partInfoFromScanner.pc;
 
     if (productCode != "" || validScannerInput) {
-      let productCodeInternal = productCode ?? partInfoFromScanner.pc;
-      let quantity = partInfoFromScanner.qty;
-
+      console.log(partInfoFromScanner)
+      let productCodeInternal = partInfoFromScanner.pc ? partInfoFromScanner.pc : productCode;
+      let quantity = partInfoFromScanner.qty ?? 1;
+      setLoading(true)
       const response = await fetch("/api/parts/autocomplete", {
         method: "POST",
         body: JSON.stringify({
@@ -98,7 +127,12 @@ export default function Add() {
           Object.keys(response.body.body).forEach((key) => {
             //check if exists, otherwise dont create
             if (form.values.hasOwnProperty(key)) {
-              form.setFieldValue(key, response.body.body[key]);
+              if(key == "quantity") {
+                //If I receive a quantity, but not from the scanner
+                form.setFieldValue(key, quantity);
+              } else {
+                form.setFieldValue(key, response.body.body[key]);
+              }
             }
           });
         }
@@ -115,35 +149,29 @@ export default function Add() {
       });
       return;
     }
-    // const response = await fetch("/api/parts/autocomplete", {
-    //   method: "POST",
-    //   body: JSON.stringify({ scannerInput, productCode }),
-    // });
-    // const data = await response.json();
-    // setFormData(data);
+    setLoading(false)
   }
 
   async function addPart() {
-    form.validate()
-    console.log("Test")
-    if(form.isValid()) {
+    form.validate();
+    if (form.isValid()) {
       const response = await fetch("/api/parts/create", {
         method: "POST",
         body: JSON.stringify(form.values),
       }).then((response) =>
-      response
-        .json()
-        .then((data) => ({ status: response.status, body: data }))
-    );
-      if(response.status == 200) {
+        response
+          .json()
+          .then((data) => ({ status: response.status, body: data }))
+      );
+      if (response.status == 200) {
         notifications.show({
           title: "Part Add Successful",
           message: `The part ${form.values.productCode} was added.`,
         });
         form.reset();
       } else {
-        if(response.status == 500) {
-          if(response.body.error == "Part already exists") {
+        if (response.status == 500) {
+          if (response.body.error == "Part already exists") {
             notifications.show({
               title: "Part Add Failed",
               message: `The part ${form.values.productCode} already exists.`,
@@ -167,7 +195,6 @@ export default function Add() {
         message: `Please fill out all required fields.`,
       });
     }
-    
   }
 
   const router = useRouter();
@@ -194,16 +221,29 @@ export default function Add() {
           <IconChevronLeft />
         </ActionIcon>
       </Tooltip>
-      <SimpleGrid cols={2}>
+      <LoadingOverlay
+        visible={isLoading}
+        zIndex={1000}
+        overlayProps={{ blur: 5, opacity: 0.5 }}
+      />
+      <SimpleGrid cols={{sm: 1, md: 2}}>
         <Carousel withIndicators height={"100%"}>
-          {form.values.productImages.map((image, index) => (
-            <Carousel.Slide key={index}>
-              <Image src={image} alt="Product Images" fit="contain" />
+          {form.values.productImages.length == 0 ? (
+            <Carousel.Slide>
+              <Image
+                p={"lg"}
+                src={"/images/image-add.svg"}
+                alt="Product Images"
+                fit="contain"
+              />
             </Carousel.Slide>
-          ))}
-          {/* <Carousel.Slide>1</Carousel.Slide>
-            <Carousel.Slide>2</Carousel.Slide>
-            <Carousel.Slide>3</Carousel.Slide> */}
+          ) : (
+            form.values.productImages.map((image, index) => (
+              <Carousel.Slide key={index}>
+                <Image src={image} alt="Product Images" fit="contain" />
+              </Carousel.Slide>
+            ))
+          )}
         </Carousel>
         <Paper p={"sm"}>
           <Stack p={"sm"}>
@@ -211,24 +251,34 @@ export default function Add() {
               <Grid gutter={4}>
                 <Grid.Col span={12}>
                   <Paper p={"sm"} shadow="sm">
-                    <Group justify="space-between"  pb={4}>
+                    <Group justify="space-between" pb={4}>
                       <Text>Autocomplete: </Text>
                       <Tooltip label="Autocomplete For LCSC">
-                      <ThemeIcon>
-                        <IconInfoCircle />
-                      </ThemeIcon></Tooltip>
+                        <ThemeIcon>
+                          <IconInfoCircle />
+                        </ThemeIcon>
+                      </Tooltip>
                     </Group>
                     <Grid>
                       <Grid.Col span={6}>
                         <TextInput
                           placeholder="Scanner Input"
-                          ref={inputRefs.scannerInput}
+                          // ref={inputRefs.scannerInput}
+                          value={scannerInput ?? ""}
+                          onChange={(event) => {
+                            setScannerInput(event.currentTarget.value);
+                          }}
                         />
                       </Grid.Col>
                       <Grid.Col span={6}>
                         <TextInput
                           placeholder="Product Code"
-                          ref={inputRefs.productCode}
+                          // ref={inputRefs.productCode}
+                          value={productCode ?? ""}
+                          onChange={(event) => {
+                            setProductCode(event.currentTarget.value);
+                          }}
+
                         />
                       </Grid.Col>
                       <Grid.Col span={12}>
@@ -270,7 +320,6 @@ export default function Add() {
                           wrap="nowrap"
                           gap="sm"
                         >
-                          {/* {Object.entries(form.values.prices).map((value) => {return (<Text>{value}</Text>)})} */}
                           {Object.entries(form.values.prices).map(
                             ([_, price], index) => (
                               <div key={index}>
@@ -311,7 +360,6 @@ export default function Add() {
                                         step={0.1}
                                         prefix="$"
                                         variant="unstyled"
-                                        // description="Price"
                                         onChange={(value) => {
                                           let newPrices = [
                                             ...form.values.prices,
@@ -331,10 +379,6 @@ export default function Add() {
                                     </Tooltip>
                                   </Group>
                                 </Paper>
-                                {/* <Text>
-                                    Ladder: {price.ladder}, price: {price.price}
-                                  </Text> */}
-                                {/* <button onClick={() => deletePrice(ladder)}>Delete</button> */}
                               </div>
                             )
                           )}
@@ -354,7 +398,6 @@ export default function Add() {
                   ) : (
                     <Grid.Col span={6} key={value}>
                       <TextInput
-                        // key={key}
                         description={
                           value.charAt(0).toUpperCase() + value.slice(1)
                         }

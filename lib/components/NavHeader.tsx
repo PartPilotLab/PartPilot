@@ -8,16 +8,23 @@ import {
   Group,
   Menu,
   Image,
+  Box,
+  Drawer,
+  ScrollArea,
+  Divider,
+  rem,
+  Stack,
 } from "@mantine/core";
 import classes from "./NavHeader.module.css";
 import { IconChevronDown, IconPlayerPlay, IconPlus } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import onScan from "onscan.js";
+import { useDisclosure } from "@mantine/hooks";
 
 const links = [
   { link: "/", label: "Dashboard" },
   { link: "/categories", label: "Categories" },
-  // { link: "/about", label: "Settings" },
-  { link: "/about", label: "About Us" },
+  // { link: "/about", label: "About Us" },
 ] as {
   link: string;
   label: string;
@@ -26,6 +33,9 @@ const links = [
 
 export default function NavHeader() {
   const router = useRouter();
+  const pathname = usePathname();
+  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
+    useDisclosure(false);
 
   const items = links.map((link) => {
     const menuItems = link.links?.map((item) => (
@@ -64,7 +74,26 @@ export default function NavHeader() {
         className={classes.link}
         onClick={(event) => {
           event.preventDefault();
-          router.push(link.link);
+          if (link.link === "/") {
+            if (pathname !== link.link) {
+              router.push(link.link);
+            } else {
+              window.location.href = "/";
+            }
+          } else {
+            if (pathname !== link.link) {
+              if (
+                typeof document !== "undefined" &&
+                typeof onScan !== "undefined"
+              ) {
+                if (onScan.isAttachedTo(document)) {
+                  onScan.detachFrom(document);
+                }
+              }
+            }
+            router.push(link.link);
+          }
+          closeDrawer();
         }}
       >
         {link.label}
@@ -73,35 +102,85 @@ export default function NavHeader() {
   });
 
   return (
-    <header className={classes.header}>
-      <Container size={"md"} p={"sm"} h={60}>
-        <Group justify="space-between">
-          <Image
-            src="/images/rederadar-logo.png"
-            alt="Logo"
-            h={40}
-            fit="contain"
-            w="auto"
-            onClick={() => {
-              router.push("/");
-            }}
-            style={{ cursor: "pointer" }}
-          />
-          <Group gap={5} visibleFrom="sm">
-            {items}
+    <Box>
+      <header className={classes.header}>
+        <Container size={"md"} p={"sm"} h={60}>
+          <Group justify="space-between">
+            <Image
+              src="/images/rederadar-logo.png"
+              alt="Logo"
+              h={40}
+              fit="contain"
+              w="auto"
+              onClick={() => {
+                router.push("/");
+              }}
+              style={{ cursor: "pointer" }}
+            />
+            <Group gap={5} visibleFrom="sm">
+              {items}
+            </Group>
+            <Burger
+              opened={drawerOpened}
+              onClick={toggleDrawer}
+              hiddenFrom="sm"
+              c={"gray"}
+            />
+            {
+              <Button
+                rightSection={<IconPlus />}
+                onClick={() => {
+                  if (
+                    typeof document !== "undefined" &&
+                    typeof onScan !== "undefined"
+                  ) {
+                    if (onScan.isAttachedTo(document)) {
+                      onScan.detachFrom(document);
+                    }
+                  }
+                  router.push("/add");
+                }}
+              >
+                Add Part
+              </Button>
+            }
           </Group>
-          {
+        </Container>
+      </header>
+      <Drawer
+        opened={drawerOpened}
+        onClose={closeDrawer}
+        size="70%"
+        padding="md"
+        title="Navigation"
+        hiddenFrom="sm"
+        zIndex={1000000}
+      >
+        <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
+          <Divider my={"sm"} />
+          <Stack>{items}</Stack>
+          <Divider my={"sm"} />
+
+          <Group justify="center" grow pb="xl" px="md">
             <Button
               rightSection={<IconPlus />}
-              onClick={() =>
-                router.push("/add")
-              }
+              onClick={() => {
+                if (
+                  typeof document !== "undefined" &&
+                  typeof onScan !== "undefined"
+                ) {
+                  if (onScan.isAttachedTo(document)) {
+                    onScan.detachFrom(document);
+                  }
+                }
+                router.push("/add");
+              }}
             >
               Add Part
             </Button>
-          }
-        </Group>
-      </Container>
-    </header>
+          </Group>
+        </ScrollArea>
+      </Drawer>
+    </Box>
   );
 }

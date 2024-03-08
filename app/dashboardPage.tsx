@@ -22,18 +22,14 @@ import {
   TextInput,
   ThemeIcon,
 } from "@mantine/core";
-import { motion, useScroll } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import onScan from "onscan.js";
 import { PartState } from "@/lib/helper/part_state";
-import { get } from "http";
 import { format, round, unit } from "mathjs";
 import {
   IconArrowLeftFromArc,
   IconLink,
-  IconMinus,
   IconPdf,
-  IconPlus,
   IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
@@ -41,12 +37,8 @@ import { notifications } from "@mantine/notifications";
 import ValueSearch, {
   ValueSearchRef,
 } from "@/lib/components/search/ValueSearch";
-
-// declare global {
-//   interface Window {
-//     scan: any;
-//   }
-// }
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "@mantine/form";
 
 export function scannerInputToType(partScannerInput: string): ScannerPartState {
   var json = {} as { [key: string]: string };
@@ -65,7 +57,7 @@ export function scannerInputToType(partScannerInput: string): ScannerPartState {
 
     return { pm: pmVal, qty: Number(qtyVal), pdi, pc, on, pbn };
   }
-  return { pm: "", qty: 0, pc: "", error: true};
+  return { pm: "", qty: 0, pc: "", error: true };
 }
 export interface ScannerPartState {
   pbn?: string;
@@ -97,23 +89,24 @@ export default function DashboardPage({
   loadedParts,
   itemCount,
   parentCatalogNames,
+  searchCatalog,
 }: {
   loadedParts: PartState[];
   itemCount: number;
   parentCatalogNames: string[];
+  searchCatalog?: string;
 }) {
   const itemsPerPage = 10;
 
-  const [manualScannerInput, setManualScannerInput] = useState<string>("");
   const [isLoading, setLoading] = useState(false);
   const [itemCountState, setItemCountState] = useState(itemCount);
   const [parentCatalogNamesState, setParentCatalogNamesState] =
     useState<string[]>(parentCatalogNames);
 
   const [parts, setParts] = useState<PartState[]>(loadedParts);
-  // const [searchResult, setSearchResult] = useState<PartState[]>();
-  const [isSearchResult, setIsSearchResult] = useState(false);
-  const [searchFilter, setSearchFilter] = useState<FilterState>();
+  const [isSearchResult, setIsSearchResult] = useState(
+    searchCatalog ? searchCatalog.length > 0 : false ?? false
+  );
   const [activePage, setPage] = useState(1);
 
   const voltageSearchRef = useRef<ValueSearchRef>(null);
@@ -123,16 +116,23 @@ export default function DashboardPage({
   const frequencySearchRef = useRef<ValueSearchRef>(null);
   const capacitanceSearchRef = useRef<ValueSearchRef>(null);
 
+  const router = useRouter();
+
+  const searchForm = useForm<FilterState>({
+    initialValues: {
+      productTitle: "",
+      productCode: "",
+      productDescription: "",
+      parentCatalogName: searchCatalog || null,
+    },
+  });
+
   useEffect(() => {
     if (typeof document !== "undefined") {
       if (onScan.isAttachedTo(document) == false) {
         console.log("attaching onScan");
         onScan.attachTo(document, {
           suffixKeyCodes: [13], // enter-key expected at the end of a scan
-          // reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
-          // timeBeforeScanTest: 3,
-          // avgTimeByChar: 1,
-          // scanButtonLongPressTime: 20,
           keyCodeMapper: function (oEvent) {
             if (oEvent.keyCode === 190) {
               return ":";
@@ -143,7 +143,6 @@ export default function DashboardPage({
             return onScan.decodeKeyEvent(oEvent);
           },
           onScan: async function (sCode, iQty) {
-            console.log("Scanned: " + sCode);
             if (sCode) {
               let scanJson = JSON.parse(JSON.stringify(sCode));
               if (scanJson) {
@@ -161,8 +160,6 @@ export default function DashboardPage({
     }
   }, []);
 
-  
-
   const updatePartInState = (part: PartState) => {
     setParts((prevParts) => {
       const index = prevParts.findIndex((p) => p.id === part.id);
@@ -176,36 +173,11 @@ export default function DashboardPage({
     });
   };
 
-  const handleSearchInputChange = (input: {
-    name: string;
-    value: string | { operation: Operations; value: number } | null;
-  }) => {
-    setSearchFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        [input.name]: input.value,
-      };
-    });
-  };
-
-  const addPartInState = (part: PartState) => {
-    setParts((prevParts) => {
-      const newParts = [...prevParts, part];
-      return newParts.sort((a, b) => b.id - a.id);
-    });
-  };
-
-  const deletePartInState = (partId: number) => {
-    setParts((prevParts) => {
-      const newParts = prevParts.filter((part) => part.id !== partId);
-      return newParts;
-    });
-  };
-
   async function searchParts(page: number) {
     setLoading(true);
     try {
-      let currentSearchFilter = searchFilter || {};
+      // let currentSearchFilter = searchFilter || {};
+      let currentSearchFilter = searchForm.values || {};
       if (currentSearchFilter) {
         currentSearchFilter.voltage =
           voltageSearchRef.current?.getSearchParameters();
@@ -237,7 +209,6 @@ export default function DashboardPage({
       console.log(res.body);
       const response = res.body.parts as PartState[];
       if (response) {
-        // setSearchResult(response);
         setParts(response);
         if (!isSearchResult) {
           setIsSearchResult(true);
@@ -275,7 +246,6 @@ export default function DashboardPage({
   }
 
   async function clearSearch() {
-    setSearchFilter(undefined);
     setIsSearchResult(false);
     voltageSearchRef?.current?.clear();
     resistanceSearchRef?.current?.clear();
@@ -283,6 +253,9 @@ export default function DashboardPage({
     currentSearchRef?.current?.clear();
     frequencySearchRef?.current?.clear();
     capacitanceSearchRef?.current?.clear();
+    router.replace("/", undefined);
+    searchForm.reset();
+    searchForm.setFieldValue("parentCatalogName", null);
     setPage(1);
     await getParts(1);
   }
@@ -427,101 +400,65 @@ export default function DashboardPage({
         style={{ position: "sticky", top: "10px", overflow: "hidden" }}
       >
         <Stack p={"sm"}>
-          <SimpleGrid cols={{ lg: 6, sm: 2, xl: 6, md: 4 }} spacing={2}>
-            <ValueSearch valueType="voltage" ref={voltageSearchRef} />
-            <ValueSearch valueType="resistance" ref={resistanceSearchRef} />
-            <ValueSearch valueType="power" ref={powerSearchRef} />
-            <ValueSearch valueType="current" ref={currentSearchRef} />
-            {/* <TextInput
-          placeholder="Tolerance"
-          value={searchFilter?.tolerance ?? ""}
-          onChange={(event) => {
-            const tolerance = event.currentTarget.value;
-            handleSearchInputChange({
-              name: "tolerance",
-              value: tolerance,
-            });
-          }}
-          /> */}
-            <ValueSearch valueType="frequency" ref={frequencySearchRef} />
-            <ValueSearch valueType="capacitance" ref={capacitanceSearchRef} />
+          <form
+            onSubmit={searchForm.onSubmit((values) => {
+              searchParts(1);
+            })}
+          >
+            <SimpleGrid cols={{ lg: 6, sm: 2, xl: 6, md: 4 }} spacing={2}>
+              <ValueSearch valueType="voltage" ref={voltageSearchRef} />
+              <ValueSearch valueType="resistance" ref={resistanceSearchRef} />
+              <ValueSearch valueType="power" ref={powerSearchRef} />
+              <ValueSearch valueType="current" ref={currentSearchRef} />
+              <ValueSearch valueType="frequency" ref={frequencySearchRef} />
+              <ValueSearch valueType="capacitance" ref={capacitanceSearchRef} />
 
-            <TextInput
-              placeholder="Title"
-              value={searchFilter?.productTitle ?? ""}
-              radius={0}
-              onChange={(event) => {
-                const productTitle = event.currentTarget.value;
-                handleSearchInputChange({
-                  name: "productTitle",
-                  value: productTitle,
-                });
-              }}
-            />
-            <TextInput
-              placeholder="Product Code"
-              value={searchFilter?.productCode ?? ""}
-              radius={0}
-              onChange={(event) => {
-                // const productCode = event.currentTarget.value;
-                const productCode = event.currentTarget.value.replace(
-                  /\s/g,
-                  ""
-                );
-                handleSearchInputChange({
-                  name: "productCode",
-                  value: productCode,
-                });
-              }}
-            />
+              <TextInput
+                placeholder="Title"
+                radius={0}
+                {...searchForm.getInputProps("productTitle")}
+                // onChange={(event) => {
+              />
+              <TextInput
+                placeholder="Product Code"
+                value={searchForm.values.productCode ?? ""}
+                radius={0}
+                onChange={(event) => {
+                  const productCode = event.currentTarget.value.replace(
+                    /\s/g,
+                    ""
+                  );
+                  searchForm.setFieldValue("productCode", productCode);
+                }}
+              />
 
-            <TextInput
-              placeholder="Description"
-              value={searchFilter?.productDescription ?? ""}
-              radius={0}
-              onChange={(event) => {
-                const productDescription = event.currentTarget.value;
-                handleSearchInputChange({
-                  name: "productDescription",
-                  value: productDescription,
-                });
-              }}
-            />
-            <Select
-              placeholder="Catalog"
-              value={searchFilter?.parentCatalogName ?? ""}
-              radius={0}
-              onChange={(value) => {
-                console.log("CHANGED");
-                handleSearchInputChange({
-                  name: "parentCatalogName",
-                  value: value,
-                });
-              }}
-              data={parentCatalogNamesState}
-              clearable
-              searchable
-            />
-            <Button
-              onClick={() => {
-                console.log("SEARCH");
-                searchParts(1);
-              }}
-              rightSection={<IconSearch />}
-              radius={0}
-            >
-              Search
-            </Button>
-            <Button
-              onClick={() => {
-                clearSearch();
-              }}
-              radius={0}
-              // disabled={!isSearchResult}
-            >
-              Clear
-            </Button>
-          </SimpleGrid>
+              <TextInput
+                placeholder="Description"
+                {...searchForm.getInputProps("productDescription")}
+                radius={0}
+              />
+              <Select
+                placeholder="Catalog"
+                {...searchForm.getInputProps("parentCatalogName")}
+                radius={0}
+                data={parentCatalogNamesState}
+                clearable
+                searchable
+              />
+              <Button type="submit" rightSection={<IconSearch />} radius={0}>
+                Search
+              </Button>
+              <Button
+                onClick={() => {
+                  clearSearch();
+                }}
+                radius={0}
+                // disabled={!isSearchResult}
+              >
+                Clear
+              </Button>
+            </SimpleGrid>
+          </form>
         </Stack>
       </Paper>
       {/* <TextInput
@@ -662,19 +599,22 @@ function PartItem({
         />
       </Table.Td>
       {/* <Table.Td>{part.id}</Table.Td> */}
-      <Table.Td><Stack gap={"sm"}>{part.title}
-      <NavLink
-          href={"/part/" + part.id}
-          // target="_blank"
-          label="Details"
-          active
-          leftSection={
-            <ThemeIcon>
-              <IconArrowLeftFromArc />
-            </ThemeIcon>
-          }
-        />
-      </Stack></Table.Td>
+      <Table.Td>
+        <Stack gap={"sm"}>
+          {part.title}
+          <NavLink
+            href={"/part/" + part.id}
+            // target="_blank"
+            label="Details"
+            active
+            leftSection={
+              <ThemeIcon>
+                <IconArrowLeftFromArc />
+              </ThemeIcon>
+            }
+          />
+        </Stack>
+      </Table.Td>
       <Table.Td>{part.productCode}</Table.Td>
       <Table.Td>{part.quantity}</Table.Td>
       <Table.Td>
