@@ -72,7 +72,7 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 
 ### Prerequisites
 
-Here is what you need to be able to run Formbricks:
+Here is what you need to be able to run PartPilot:
 
 - [Node.js](https://nodejs.org/en) (Version: >=18.x)
 
@@ -128,5 +128,8 @@ PartPilot is all about sharing, growing, and collaborating. That's why we've cho
 By using PartPilot, you're part of a larger movement that values open access to technology and collaborative improvement. The AGPL-3.0 license guarantees that any modifications or versions of the project you distribute will remain free and open, ensuring the community benefits from each other's improvements and contributions.
 
 So, dive in, tweak it, twist it, and make it your own. And if you do something cool, the world gets to see and build upon it too. That's the beauty of AGPL-3.0 – it's all about giving back and moving forward together.
+
+### Note
+PartPilot is currently not production ready. There will be breaking changes.
 
 <p align="right"><a href="#top">🔼 Back to top</a></p>
