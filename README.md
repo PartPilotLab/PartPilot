@@ -24,13 +24,10 @@ Navigating the World of Parts.
 
 
 
-## ✨ About Formbricks
-
-<img width="1616" alt="partpilot-dashboard" src="https://drive.google.com/file/d/1xHViK_IVqHnqxBZ5GivWGwuraBYTqx4o/preview">
+## ✨ About PartPilot
+<iframe src="https://drive.google.com/file/d/1xHViK_IVqHnqxBZ5GivWGwuraBYTqx4o/preview" width="640" height="480" allow="autoplay"></iframe>
 
 Welcome to PartPilot, the ultimate open-source solution designed to streamline and enhance your electronics part management experience. Whether you're a hobbyist, a professional engineer, or part of an educational or research institution, PartPilot is here to transform the way you organize, track, and interact with your electronic components.
-
-**Try it out in the cloud at [formbricks.com](https://app.formbricks.com/auth/signup)**
 
 ### Table of Contents
 
