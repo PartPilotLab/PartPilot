@@ -1,10 +1,7 @@
 "use client";
 import { Text, Container, ActionIcon, Group, rem, Image, ThemeIcon } from "@mantine/core";
 import {
-  IconBrandTwitter,
-  IconBrandYoutube,
-  IconBrandInstagram,
-  IconBrandDiscord
+  IconBrandTwitter
 } from "@tabler/icons-react";
 import classes from "./NavFooter.module.css";
 import Link from "next/link";
@@ -14,7 +11,7 @@ const data = [
   {
     title: "Project",
     links: [
-      { label: "About Us", link: "/about", icon: undefined },
+      // { label: "About Us", link: "/about", icon: undefined },
       { label: "GitHub", link: "https://github.com/LenniM/PartPilot", icon: undefined },
     ],
   },
@@ -53,7 +50,7 @@ export default function NavFooter() {
       <Container className={classes.inner}>
         <div className={classes.logo}>
           <Image
-            src="/images/rederadar-logo.png"
+            src="/images/PartPilot-Logo.png"
             alt="image"
             h={100}
             fit="contain"

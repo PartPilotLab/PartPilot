@@ -83,7 +83,6 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
       getSearchParameters: () => {
         let siValue = value;
         if (value !== null && unit !== null && valueType !== "capacitance") {
-          //   siValue = unit(value, unit).toNumber('SI');
           let adjustedUnit = unit;
           if (unit === "Ω") {
             adjustedUnit = "ohm";
@@ -112,7 +111,6 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
             w={"20%"}
             size="sm"
             radius={0}
-            //   variant="unstyled"
           />
           <NumberInput
             placeholder={valueType.charAt(0).toUpperCase() + valueType.slice(1)}
@@ -121,7 +119,6 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
             w={"55%"}
             size="sm"
             radius={0}
-            //   variant="unstyled"
           />
           <Select
             data={units[valueType]}
@@ -131,7 +128,6 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
             size="sm"
             radius={0}
             rightSection={null}
-            // variant="unstyled"
           />
         </Group>
       </Paper>

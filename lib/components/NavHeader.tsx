@@ -107,7 +107,7 @@ export default function NavHeader() {
         <Container size={"md"} p={"sm"} h={60}>
           <Group justify="space-between">
             <Image
-              src="/images/rederadar-logo.png"
+              src="/images/PartPilot-Logo.png"
               alt="Logo"
               h={40}
               fit="contain"

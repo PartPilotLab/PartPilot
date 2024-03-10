@@ -5,10 +5,6 @@ export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
     const result = lcsc_response.result;
   
     const productLink = `https://www.lcsc.com/product-detail/${result.catalogName.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-').replace(/\//g, '_')}_${result.title.replace(/\s/g, '-').replace(/-\(/g, '_').replace(/\)-/g, '_').replace(/-{2,}/g, '-').replace(/\//g, '_')}_${result.productCode}.html`;
-    // const paramVOList = result.paramVOList.reduce((acc: any, curr: any) => {
-    //   acc[curr.paramNameEn] = curr.paramValueEnForSearch;
-    //   return acc;
-    // }, {});
     const paramVOList = result.paramVOList.reduce((acc: any, curr: any) => {
         let value = curr.paramValueEnForSearch;
         if(curr.paramNameEn == "Tolerance"){

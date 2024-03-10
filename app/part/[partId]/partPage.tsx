@@ -238,7 +238,6 @@ export default function PartPage({ part }: { part: PartState }) {
                                         step={0.1}
                                         prefix="$"
                                         variant="unstyled"
-                                        // description="Price"
                                         onChange={(value) => {
                                           let newPrices = [
                                             ...form.values.prices,

@@ -2,35 +2,6 @@ import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// Important search values:
-// ProductCode
-// ParentCatalogName
-// EncapStandard
-// Voltage
-// Current
-// Resistance
-// Tolerance
-// Power
-// Frequency
-// Capacitance
-
-// export async function GET(request: NextRequest) {
-//   try {
-//     console.log("GETTING PARTS");
-
-//     const { searchParams } = new URL(request.url);
-//     const page = searchParams.get("page");
-//     const parts = await prisma.parts.findMany({
-//       orderBy: { id: "desc" },
-//       take: 1,
-//       skip: page ? (parseInt(page) - 1) * 10 : 0,
-//     });
-//     return NextResponse.json({ status: 200, parts: parts });
-//   } catch (error: ErrorCallback | any) {
-//     return NextResponse.json({ status: 500, error: error });
-//   }
-// }
-function handleWhereClause() {}
 // For advanced search: fetch all distinct values for each column
 // Then have a selector allowing to choose from those values
 function convertOperation(operation: string) {
@@ -75,23 +46,6 @@ export async function POST(request: NextRequest) {
     };
 
     // Add conditions based on the filter object
-    // for (const key in filter) {
-    //   if (filter[key].value !== undefined && filter[key].operation !== undefined) {
-    //     let operation = convertOperation(filter[key].operation);
-    //     where = {
-    //       voltage: {
-    //         // gt: filter[key].value,
-    //         // convertOperation(filter[key].operation): filter[key].value,
-    //         "gt": filter[key].value,
-
-    //       }
-    //     }
-    //     // where[key as keyof Prisma.PartsWhereInput] = {
-    //     //   [filter[key].operation]: filter[key].value,
-    //     // };
-    //   }
-    // }
-
     for (const key in filter) {
       if (
         filter[key].value !== undefined &&

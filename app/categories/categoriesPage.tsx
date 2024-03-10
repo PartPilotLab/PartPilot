@@ -66,7 +66,11 @@ export default function CategoriesPage({
               }}
             >
               <Card.Section>
-                <Image src={item.productImages[0] ?? "/images/image-bg.svg"} height={160} fit="cover" />
+                <Image
+                  src={item.productImages[0] ?? "/images/image-bg.svg"}
+                  height={160}
+                  fit="cover"
+                />
               </Card.Section>
               <Text fz="lg" fw={500} className={classes.cardTitle} mt="md">
                 {item.parentCatalogName}

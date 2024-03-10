@@ -260,7 +260,6 @@ export default function DashboardPage({
     await getParts(1);
   }
 
-  //https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD/SMT_Samsung-Electro-Mechanics-CL10B104KB8NNNC_C1591.html
   async function getPartInfoFromLCSC(pc: string, quantity: number) {
     // fetch part info from LCSC
     // return part info
@@ -315,17 +314,14 @@ export default function DashboardPage({
       );
       if (res.status !== 200) {
         console.log(res.body.message);
-        // throw new Error(res.body.message);
       }
       if (res.status == 200) {
-        // deletePartInState(partId);
         if (
           Math.ceil(itemCountState / itemsPerPage) >
             Math.ceil(res.body.itemCount) &&
           activePage == Math.ceil(itemCountState / itemsPerPage)
         ) {
           navigatePage(activePage - 1);
-          // setPage(activePage - 1);
         } else {
           getParts(activePage);
         }
@@ -341,7 +337,6 @@ export default function DashboardPage({
     } catch (e: ErrorCallback | any) {
       console.error(e.message);
     }
-    // setLoading(false)
   }
 
   async function updatePartQuantity(partId: number, quantity: number) {
@@ -366,9 +361,6 @@ export default function DashboardPage({
         });
         updatePartInState(res.body.body);
       }
-      // await getParts();
-      // const updatedPart = res.body as PartState;
-      // await updatePartInState(updatedPart);
     } catch (e: ErrorCallback | any) {
       console.error(e.message);
     }
@@ -384,15 +376,8 @@ export default function DashboardPage({
     }
   }
 
-  // const [visible, { toggle }] = useDisclosure(false);
-
   return (
     <Stack gap={"sm"} style={{ overflowX: "hidden" }}>
-      {/* <motion.div
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0 }}
-      ></motion.div> */}
       <Paper
         m={"sm"}
         withBorder
@@ -417,7 +402,6 @@ export default function DashboardPage({
                 placeholder="Title"
                 radius={0}
                 {...searchForm.getInputProps("productTitle")}
-                // onChange={(event) => {
               />
               <TextInput
                 placeholder="Product Code"
@@ -453,7 +437,6 @@ export default function DashboardPage({
                   clearSearch();
                 }}
                 radius={0}
-                // disabled={!isSearchResult}
               >
                 Clear
               </Button>
@@ -461,28 +444,7 @@ export default function DashboardPage({
           </form>
         </Stack>
       </Paper>
-      {/* <TextInput
-          placeholder="Manual input"
-          onChange={(event) => {
-            setManualScannerInput(event.currentTarget.value);
-          }}
-          value={manualScannerInput}
-        />
-        <Button
-          onClick={() => {
-            if (manualScannerInput) {
-              let scanJson = JSON.parse(JSON.stringify(manualScannerInput));
-              if (scanJson) {
-                let partInfo = scannerInputToType(scanJson);
 
-                getPartInfoFromLCSC(partInfo.pc, partInfo.qty);
-              }
-              setManualScannerInput("");
-            }
-          }}
-        >
-          Manual Add
-        </Button> */}
       <Paper p={"sm"}>
         <Stack>
           {parts != null && parts.length > 0 ? (
@@ -503,10 +465,8 @@ export default function DashboardPage({
                     <Table.Th>CatalogName</Table.Th>
                     <Table.Th>BrandName</Table.Th>
                     <Table.Th>EncapStandard</Table.Th>
-                    {/* <Table.Th>ProductImages</Table.Th> */}
                     <Table.Th>Pdf</Table.Th>
                     <Table.Th>Link</Table.Th>
-                    {/* <Table.Th>Prices</Table.Th> */}
                     <Table.Th>Price</Table.Th>
                     <Table.Th>Voltage</Table.Th>
                     <Table.Th>Resistance</Table.Th>
@@ -532,18 +492,6 @@ export default function DashboardPage({
               </Table>
             </Table.ScrollContainer>
           ) : (
-            // <Center>
-            //   <Paper withBorder radius={"sm"} shadow="sm">
-            //     <Stack p={"md"}>
-            //       <Image src="/images/start.svg" h={400} fit="contain" />
-            //       <Text ta={"center"}>No parts found</Text>
-            //       <Group justify="center" grow>
-            //         <Button onClick={() => getParts(1)}>Add Part</Button>
-            //         <Button onClick={() => getParts(1)}>Refresh</Button>
-            //       </Group>
-            //     </Stack>
-            //   </Paper>
-            // </Center>
             <Paper w={"100%"} shadow="sm" withBorder>
               <Text p={"sm"}>No Parts Found</Text>
             </Paper>
@@ -560,12 +508,6 @@ export default function DashboardPage({
           </Group>
         </Stack>
       </Paper>
-      {/* <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ delay: 0.6 }}
-      ></motion.div> */}
     </Stack>
   );
 }
@@ -598,13 +540,11 @@ function PartItem({
           height="100"
         />
       </Table.Td>
-      {/* <Table.Td>{part.id}</Table.Td> */}
       <Table.Td>
         <Stack gap={"sm"}>
           {part.title}
           <NavLink
             href={"/part/" + part.id}
-            // target="_blank"
             label="Details"
             active
             leftSection={
@@ -728,7 +668,6 @@ function PartItem({
               ))}
             </Table.Tbody>
           </Table>
-          {/* {element.prices.map(price => <Text key={price.ladder}>{`Quantity: ${price.ladder}, Price: ${price.price}$`}</Text>)} */}
         </HoverCard.Dropdown>
       </HoverCard>
       <Table.Td>{formatVoltage(part.voltage)}</Table.Td>

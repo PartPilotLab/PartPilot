@@ -8,10 +8,6 @@ export default async function Categories() {
     
      
   });
-  console.log(catalogItems)
-//   const parentCatalogNames = parentCatalogNamesRaw.map(
-//     (item) => item.parentCatalogName
-//   );
 
   return (
     <CategoriesPage

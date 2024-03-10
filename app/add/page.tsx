@@ -26,39 +26,10 @@ import { useForm } from "@mantine/form";
 import { IconChevronLeft, IconInfoCircle, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { Carousel } from "@mantine/carousel";
-import onScan from "onscan.js";
 
 export default function Add() {
-
   const [isLoading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (typeof document !== "undefined") {
-  //     if (onScan.isAttachedTo(document) == false) {
-  //       onScan.attachTo(document, {
-  //         suffixKeyCodes: [13], // enter-key expected at the end of a scan
-  //         keyCodeMapper: function (oEvent) {
-  //           if (oEvent.keyCode === 190) {
-  //             return ":";
-  //           }
-  //           if (oEvent.keyCode === 188) {
-  //             return ",";
-  //           }
-  //           return onScan.decodeKeyEvent(oEvent);
-  //         },
-  //         onScan: async function (sCode, iQty) {
-  //           if (sCode) {
-  //             setScannerInput(sCode);
-
-  //           }
-  //         },
-  //       });
-  //     } else {
-  //       console.log("onScan already attached to document");
-  //     }
-  //   }
-  // }, []);
-  
   const form = useForm({
     initialValues: {
       title: "",
@@ -95,17 +66,20 @@ export default function Add() {
   const [scannerInput, setScannerInput] = useState("");
   const [productCode, setProductCode] = useState("");
 
-
   async function handleAutocomplete() {
-    const partInfoFromScanner = scannerInputToType(JSON.parse(JSON.stringify(scannerInput)) ?? "");
+    const partInfoFromScanner = scannerInputToType(
+      JSON.parse(JSON.stringify(scannerInput)) ?? ""
+    );
     const validScannerInput =
       partInfoFromScanner.pc != "" && partInfoFromScanner.pc;
 
     if (productCode != "" || validScannerInput) {
-      console.log(partInfoFromScanner)
-      let productCodeInternal = partInfoFromScanner.pc ? partInfoFromScanner.pc : productCode;
+      console.log(partInfoFromScanner);
+      let productCodeInternal = partInfoFromScanner.pc
+        ? partInfoFromScanner.pc
+        : productCode;
       let quantity = partInfoFromScanner.qty ?? 1;
-      setLoading(true)
+      setLoading(true);
       const response = await fetch("/api/parts/autocomplete", {
         method: "POST",
         body: JSON.stringify({
@@ -127,7 +101,7 @@ export default function Add() {
           Object.keys(response.body.body).forEach((key) => {
             //check if exists, otherwise dont create
             if (form.values.hasOwnProperty(key)) {
-              if(key == "quantity") {
+              if (key == "quantity") {
                 //If I receive a quantity, but not from the scanner
                 form.setFieldValue(key, quantity);
               } else {
@@ -149,7 +123,7 @@ export default function Add() {
       });
       return;
     }
-    setLoading(false)
+    setLoading(false);
   }
 
   async function addPart() {
@@ -226,7 +200,7 @@ export default function Add() {
         zIndex={1000}
         overlayProps={{ blur: 5, opacity: 0.5 }}
       />
-      <SimpleGrid cols={{sm: 1, md: 2}}>
+      <SimpleGrid cols={{ sm: 1, md: 2 }}>
         <Carousel withIndicators height={"100%"}>
           {form.values.productImages.length == 0 ? (
             <Carousel.Slide>
@@ -263,7 +237,6 @@ export default function Add() {
                       <Grid.Col span={6}>
                         <TextInput
                           placeholder="Scanner Input"
-                          // ref={inputRefs.scannerInput}
                           value={scannerInput ?? ""}
                           onChange={(event) => {
                             setScannerInput(event.currentTarget.value);
@@ -273,12 +246,10 @@ export default function Add() {
                       <Grid.Col span={6}>
                         <TextInput
                           placeholder="Product Code"
-                          // ref={inputRefs.productCode}
                           value={productCode ?? ""}
                           onChange={(event) => {
                             setProductCode(event.currentTarget.value);
                           }}
-
                         />
                       </Grid.Col>
                       <Grid.Col span={12}>
