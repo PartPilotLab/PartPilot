@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<div id="top"></div>
 
-## Getting Started
+<p align="center">
 
-First, run the development server:
+<a href="https://github.com/LenniM/PartPilot">
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+<img width="180" alt="Open Source Electronics Part Inventory System" src="https://github.com/LenniM/PartPilot/blob/main/public/images/PartPilot-Logo-Background.png">
+
+</a>
+
+<h3 align="center">PartPilot</h3>
+
+<p align="center">
+Navigating the World of Parts.
+<br />
+</p>
+</p>
+
+<p align="center">
+<a href="https://github.com/LenniM/PartPilot/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-AGPL-purple" alt="License"></a><a href="https://github.com/LenniM/PartPilot/stargazers"><img src="https://img.shields.io/github/stars/LenniM/PartPilot?logo=github" alt="Github Stars"></a>
+</p>
+
+<br/>
+
+
+
+## ✨ About Formbricks
+
+<img width="1616" alt="partpilot-dashboard" src="https://drive.google.com/file/d/1xHViK_IVqHnqxBZ5GivWGwuraBYTqx4o/preview">
+
+Welcome to PartPilot, the ultimate open-source solution designed to streamline and enhance your electronics part management experience. Whether you're a hobbyist, a professional engineer, or part of an educational or research institution, PartPilot is here to transform the way you organize, track, and interact with your electronic components.
+
+**Try it out in the cloud at [formbricks.com](https://app.formbricks.com/auth/signup)**
+
+### Table of Contents
+
+- [Features](#features)
+
+- [Development](#development)
+
+- [Contribution](#contribution)
+
+- [License](#license)
+
+<a id="features"></a>
+
+### Features
+
+- 🏬 **Inventory Management**: Effortlessly catalog your electronic parts with detailed information, including datasheets, supplier data, stock levels, and more.
+
+- 🖥️ **Direct LCSC Integration**: Seamlessly connect with LCSC for direct access to a vast inventory of parts, enabling easy addition and management of components within PartPilot.
+
+- 👁️ **Barcode Scanner Functionality**: Add parts to your inventory swiftly using the barcode scanner feature, enhancing efficiency and accuracy in part management.
+
+- 🕵️ **Search and Filter**: Quickly find the components you need with powerful search and filtering capabilities.
+
+- 🖼️ **Intuitive Interface**: Enjoy a user-friendly experience designed to make electronics part management as efficient and straightforward as possible.
+
+### Built on Open Source
+
+- 💻 [Typescript](https://www.typescriptlang.org/)
+
+- 🚀 [Next.js](https://nextjs.org/)
+
+- ⚛️ [React](https://reactjs.org/)
+
+- 🎨 [Mantine](https://mantine.dev/)
+
+- 📚 [Prisma](https://prisma.io/)
+
+<a id="development"></a>
+
+## 👨‍💻 Development
+
+### Prerequisites
+
+Here is what you need to be able to run Formbricks:
+
+- [Node.js](https://nodejs.org/en) (Version: >=18.x)
+
+- [Docker](https://www.docker.com/) - to run PostgreSQL
+
+### Setup
+
+Excited to have you onboard! Lets get you started.
+
+**Step 1: Clone the Repository**
+First things first, let's get the code on your machine. Open up your terminal and run:
+```
+git clone https://github.com/LenniM/PartPilot.git
+cd PartPilot
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Step 2: Spin Up Docker**
+With Docker, you don't need to worry about setting up Next.js or PostgreSQL manually. We've got a docker-compose.yml file that will do the heavy lifting for you.
+Run the following command to build and start your containers:
+```
+docker-compose up --build
+```
+This command kicks off the magic. It'll pull in the necessary images, set up your database, and get the Next.js app running. It's like hitting the power button on your awesome electronics workstation!
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Step 3: Check It Out**
+Once Docker has done its thing, your PartPilot should be up and running. Open your favorite browser and head to http://localhost:3000. Voilà! You should see the PartPilot homepage smiling back at you.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+**Step 4: Make It Your Own**
+Now that you're up and running, it's time to explore! Add some parts, link them to projects, play around with the barcode scanner feature, and see what PartPilot can do.
 
-## Learn More
+<a id="contribution"></a>
 
-To learn more about Next.js, take a look at the following resources:
+## ✍️ Contribution
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+We are very happy if you are interested in contributing to PartPilot 🤗
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+PartPilot thrives on community involvement! Whether you're interested in contributing code, providing feedback, or sharing your expertise, there's a place for you in the PartPilot community. Explore our issues, contribute to our discussions, and help us shape the future of electronics part management.
 
-## Deploy on Vercel
+Here are a few options:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Star this repo.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Create issues every time you feel something is missing or goes wrong.
+
+<a id="license"></a>
+
+## 👩‍⚖️ License
+
+### License: Embrace the Open-Source Spirit with AGPL-3.0
+
+PartPilot is all about sharing, growing, and collaborating. That's why we've chosen the AGPL-3.0 license for our project. This license ensures that you, the community, have the freedom to use, modify, and share PartPilot, all while keeping the same freedom for others.
+
+By using PartPilot, you're part of a larger movement that values open access to technology and collaborative improvement. The AGPL-3.0 license guarantees that any modifications or versions of the project you distribute will remain free and open, ensuring the community benefits from each other's improvements and contributions.
+
+So, dive in, tweak it, twist it, and make it your own. And if you do something cool, the world gets to see and build upon it too. That's the beauty of AGPL-3.0 – it's all about giving back and moving forward together.
+
+<p align="right"><a href="#top">🔼 Back to top</a></p>
