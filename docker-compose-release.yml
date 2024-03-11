@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=partpilotPass
       - POSTGRES_DB=partpilotdb
   partpilot:
-    build: .  # for local
+    image: ghcr.io/partpilotlab/partpilot:latest
     depends_on:
       - postgres
     ports:
