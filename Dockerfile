@@ -13,6 +13,9 @@ RUN npx prisma generate && npm run build
 
 
 FROM node:21-bookworm
+LABEL org.opencontainers.image.source=https://github.com/PartPilotLab/PartPilot
+LABEL org.opencontainers.image.description="Electronic Part Catalog"
+LABEL org.opencontainers.image.licenses=AGPL-3.0
 
 WORKDIR /app
 
