@@ -12,14 +12,14 @@ const data = [
     title: "Project",
     links: [
       // { label: "About Us", link: "/about", icon: undefined },
-      { label: "GitHub", link: "https://github.com/LenniM/PartPilot", icon: undefined },
+      { label: "GitHub", link: "https://github.com/PartPilotLab/PartPilot", icon: undefined },
     ],
   },
   {
     title: 'Community',
     links: [
       // { label: 'Join Discord', link: '#', icon: <IconBrandDiscord/> },
-      { label: 'Follow on Twitter/X', link: '#', icon: <IconBrandTwitter/> },
+      { label: 'Follow on X', link: '#', icon: <IconBrandTwitter/> },
     ],
   },
 ] as {title: string, links: {label: string, link: string, icon: undefined | ReactNode}[]}[];

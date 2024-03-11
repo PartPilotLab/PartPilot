@@ -85,7 +85,7 @@ Excited to have you onboard! Lets get you started.
 **Step 1: Clone the Repository**
 First things first, let's get the code on your machine. Open up your terminal and run:
 ```
-git clone https://github.com/LenniM/PartPilot.git
+git clone https://github.com/PartPilotLab/PartPilot.git
 cd PartPilot
 ```
 

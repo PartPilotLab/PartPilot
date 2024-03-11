@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -29,7 +28,7 @@ export async function POST(request: NextRequest) {
     console.log(filter);
     const page = res.page;
 
-    let where: Prisma.PartsWhereInput = {
+    let where = {
       productCode: {
         contains: filter.productCode,
       },
@@ -52,7 +51,7 @@ export async function POST(request: NextRequest) {
         filter[key].operation !== undefined
       ) {
         let operation = convertOperation(filter[key].operation);
-        let temp: Prisma.PartsWhereInput = {};
+        let temp = {};
         if (filter[key].value) {
           (temp as any)[key] = {
             [operation]: filter[key].value,
