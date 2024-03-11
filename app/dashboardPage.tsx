@@ -120,9 +120,9 @@ export default function DashboardPage({
 
   const searchForm = useForm<FilterState>({
     initialValues: {
-      productTitle: "",
-      productCode: "",
-      productDescription: "",
+      productTitle: null,
+      productCode: null,
+      productDescription: null,
       parentCatalogName: searchCatalog || null,
     },
   });
@@ -192,7 +192,6 @@ export default function DashboardPage({
         currentSearchFilter.capacitance =
           capacitanceSearchRef.current?.getSearchParameters();
       }
-      console.log(voltageSearchRef.current?.getSearchParameters());
       console.log(currentSearchFilter);
 
       const res = await fetch("/api/parts/search", {
@@ -204,9 +203,8 @@ export default function DashboardPage({
           .then((data) => ({ status: response.status, body: data }))
       );
       if (res.status !== 200) {
-        throw new Error(res.body.message);
+        throw new Error(res.body.error);
       }
-      console.log(res.body);
       const response = res.body.parts as PartState[];
       if (response) {
         setParts(response);
@@ -233,7 +231,6 @@ export default function DashboardPage({
       if (res.status !== 200) {
         throw new Error(res.body.message);
       }
-      console.log("GET PARTS");
       const response = res.body.parts as PartState[];
       if (response) {
         setParts(response);

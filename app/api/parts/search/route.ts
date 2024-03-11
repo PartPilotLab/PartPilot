@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // For advanced search: fetch all distinct values for each column
 // Then have a selector allowing to choose from those values
@@ -23,35 +24,47 @@ function convertOperation(operation: string) {
 export async function POST(request: NextRequest) {
   try {
     const res = await request.json();
-    console.log(res);
     const filter = res.filter;
-    console.log(filter);
     const page = res.page;
 
-    let where = {
-      productCode: {
+    let where: Prisma.PartsWhereInput = {};
+
+    if (filter.productCode) {
+      where.productCode = {
         contains: filter.productCode,
-      },
-      title: {
+      };
+    }
+    
+    if (filter.productTitle) {
+      where.title = {
         contains: filter.productTitle,
-      },
-      productDescription: {
+      };
+    }
+    
+    if (filter.productDescription) {
+      where.productDescription = {
         contains: filter.productDescription,
-      },
-      parentCatalogName: {
-        // contains: filter.parentCatalogName,
+      };
+    }
+    
+    if (filter.parentCatalogName) {
+      where.parentCatalogName = {
         equals: filter.parentCatalogName,
-      }
-    };
+      };
+    }
 
     // Add conditions based on the filter object
     for (const key in filter) {
+      if (key === 'productCode' || key === 'productTitle' || key === 'productDescription' || key === 'parentCatalogName') {
+        continue; // Skip these keys, they are already handled above
+      }
       if (
-        filter[key].value !== undefined &&
-        filter[key].operation !== undefined
+        filter[key] !== null &&
+        filter[key].value !== null &&
+        filter[key].operation !== null
       ) {
         let operation = convertOperation(filter[key].operation);
-        let temp = {};
+        let temp: Prisma.PartsWhereInput = {};
         if (filter[key].value) {
           (temp as any)[key] = {
             [operation]: filter[key].value,
@@ -69,6 +82,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ status: 200, parts: parts });
   } catch (error: ErrorCallback | any) {
+    console.log(error);
     return NextResponse.json({ status: 500, error: error });
   }
 }
