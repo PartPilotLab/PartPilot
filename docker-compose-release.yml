@@ -9,11 +9,16 @@ services:
       - POSTGRES_USER=partpilot
       - POSTGRES_PASSWORD=partpilotPass
       - POSTGRES_DB=partpilotdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data   #replace to bind mount if needed
   partpilot:
     image: ghcr.io/partpilotlab/partpilot:latest
     depends_on:
       - postgres
     ports:
-      - 3000:3000
+      - 3000:3000   #replace host port(left side) as needed
     environment:
       - DATABASE_URL=postgresql://partpilot:partpilotPass@postgres:5432/partpilotdb?schema=public
+
+volumes:  #remove when using bind mount
+  pgdata:

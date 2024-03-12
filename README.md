@@ -34,6 +34,8 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 
 - [Features](#features)
 
+- [Usage](#usage)
+
 - [Development](#development)
 
 - [Contribution](#contribution)
@@ -66,13 +68,25 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 
 - 📚 [Prisma](https://prisma.io/)
 
+
+
+<a id="usage"></a>
+
+## Usage
+
+### 🐳 Using Docker
+
+To host Partpilot on your homeserver using Docker-compose:
+copy the contents of the `docker-compose-release.yml` into a `docker-compose.yml` file on your server
+start the service using `docker-compose up -d` or `docker compose up -d`.
+
 <a id="development"></a>
 
 ## 👨‍💻 Development
 
 ### Prerequisites
 
-Here is what you need to be able to run PartPilot:
+Here is what you need to be able to develop PartPilot:
 
 - [Node.js](https://nodejs.org/en) (Version: >=18.x)
 
