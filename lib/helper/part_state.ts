@@ -1,30 +1,30 @@
 export interface PartState {
     id: number;
 
-    title: string; //title
+    title?: string; //title
 
     quantity: number; //quantity
 
-    productId: number; //productId
+    productId?: number; //productId
     productCode: string; //productCode
-    productModel: string; //productModel
-    productDescription: string; //productIntroEn
+    productModel?: string; //productModel
+    productDescription?: string; //productIntroEn
 
-    parentCatalogName: string; //parentCatalogName
-    catalogName: string; //catalogName
-    brandName: string; //brandNameEn
+    parentCatalogName?: string; //parentCatalogName
+    catalogName?: string; //catalogName
+    brandName?: string; //brandNameEn
 
-    encapStandard: string; //--> called Package
+    encapStandard?: string; //--> called Package
 
   
-    productImages: string[]; //productImages
-    pdfLink: string; //pdfUrl
+    productImages?: string[]; //productImages
+    pdfLink?: string; //pdfUrl
 
-    productLink: string; //catalogName + _ + title (brackets to -) + _ + productCode
+    productLink?: string; //catalogName + _ + title (brackets to -) + _ + productCode
     // package: string;
     // manufacturer: string; //brandNameEn
   
-    prices: { ladder: string; price: number }[];
+    prices?: { ladder: string; price: number }[];
 
   
     voltage?: number; //param_10953_n --> paramNameEn: "Voltage Rated"
