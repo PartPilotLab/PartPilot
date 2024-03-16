@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+
+//Manually create a part
 
 export async function POST(request: NextRequest) {
   try {
-    const res = await request.json();
-    const pcNumber = res.productCode;
+    //Request body containing part details
+    const reqBody = await request.json();
+
+    console.log(reqBody)
+    //Check if part already exists
+    const pcNumber = reqBody.productCode;
     const partExists = await prisma.parts.findUnique({
       where: {
         productCode: pcNumber,
@@ -12,43 +19,32 @@ export async function POST(request: NextRequest) {
     });
     if (partExists) {
       console.log("Part already exists");
-      return NextResponse.json({ status: 500, error: "Part already exists" });
+      return NextResponse.json({error: "Part already exists" }, {status: 409});
     } else {
+      //reqBody could contain null values which will raise an error on create
+      //Thus we get rid of null values
+      const validData = Object.fromEntries(
+        Object.entries(reqBody).filter(([key, value]) => value && value !== null)
+      ) as Prisma.PartsUncheckedCreateInput;
+      //As PartsUncheckedCreateInput needed, otherwise a TypeError will be raised
       console.log("Creating part...");
       const partCreate = await prisma.parts.create({
-        data: {
-          title: res.title,
-          quantity: res.quantity,
-          productId: res.productId,
-          productCode: res.productCode,
-          productModel: res.productModel,
-          productDescription: res.productDescription,
-          parentCatalogName: res.parentCatalogName,
-          catalogName: res.catalogName,
-          brandName: res.brandName,
-          encapStandard: res.encapStandard,
-          productImages: res.productImages,
-          pdfLink: res.pdfLink,
-          productLink: res.productLink,
-          prices: res.prices,
-          voltage: res.voltage,
-          resistance: res.resistance,
-          power: res.power,
-          current: res.current,
-          tolerance: res.tolerance,
-          frequency: res.frequency,
-          capacitance: res.capacitance,
-        },
+        data: validData,
       });
+      
+
+
       if (partCreate) {
         return NextResponse.json({
-          status: 200,
           body: partCreate,
           message: "Part created",
-        });
+        }, {status: 200});
       } else {
-        return NextResponse.json({ status: 500, error: "Part not created" });
+        return NextResponse.json({ error: "Part not created" }, {status: 500});
       }
     }
-  } catch (error: ErrorCallback | any) {}
+  } catch (error: ErrorCallback | any) {
+    console.log("Error creating part", error);
+    return NextResponse.json({ error: "Error creating part" }, {status: 500});
+  }
 }

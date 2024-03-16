@@ -32,26 +32,26 @@ export default function Add() {
 
   const form = useForm({
     initialValues: {
-      title: "",
-      quantity: null,
-      productId: null,
-      productCode: "",
-      productModel: "",
-      productDescription: "",
-      parentCatalogName: "",
-      catalogName: "",
-      brandName: "",
-      encapStandard: "",
+      title: undefined,
+      quantity: 1,
+      productId: undefined,
+      productCode: undefined,
+      productModel: undefined,
+      productDescription: undefined,
+      parentCatalogName: undefined,
+      catalogName: undefined,
+      brandName: undefined,
+      encapStandard: undefined,
       productImages: [],
-      pdfLink: "",
-      productLink: null,
-      tolerance: null,
-      voltage: null,
-      resistance: null,
-      power: null,
-      current: null,
-      frequency: null,
-      capacitance: null,
+      pdfLink: undefined,
+      productLink: undefined,
+      tolerance: undefined,
+      voltage: undefined,
+      resistance: undefined,
+      power: undefined,
+      current: undefined,
+      frequency: undefined,
+      capacitance: undefined,
       prices: [] as {
         ladder: string;
         price: number;
@@ -128,6 +128,7 @@ export default function Add() {
 
   async function addPart() {
     form.validate();
+    setLoading(true);
     if (form.isValid()) {
       const response = await fetch("/api/parts/create", {
         method: "POST",
@@ -137,29 +138,32 @@ export default function Add() {
           .json()
           .then((data) => ({ status: response.status, body: data }))
       );
+      console.log(response);
       if (response.status == 200) {
         notifications.show({
           title: "Part Add Successful",
           message: `The part ${form.values.productCode} was added.`,
+          color: "green",
         });
         form.reset();
       } else {
         if (response.status == 500) {
-          if (response.body.error == "Part already exists") {
-            notifications.show({
-              title: "Part Add Failed",
-              message: `The part ${form.values.productCode} already exists.`,
-            });
-          } else {
-            notifications.show({
-              title: "Part Add Failed",
-              message: `The part could not be added. Please try again.`,
-            });
-          }
+          notifications.show({
+            title: "Part Add Failed",
+            message: `The part could not be added. Please try again.`,
+            color: "red",
+          });
+        } else if (response.status == 409) {
+          notifications.show({
+            title: "Part Add Failed",
+            message: `The part ${form.values.productCode} already exists.`,
+            color: "red",
+          });
         } else {
           notifications.show({
             title: "Part Add Failed",
             message: `The part could not be added. Please try again.`,
+            color: "red",
           });
         }
       }
@@ -169,6 +173,7 @@ export default function Add() {
         message: `Please fill out all required fields.`,
       });
     }
+    setLoading(false);
   }
 
   const router = useRouter();
@@ -303,7 +308,7 @@ export default function Add() {
                                   <Group pl={"sm"} pr={"sm"} w={"100%"} gap={0}>
                                     <Tooltip label="Quantity">
                                       <TextInput
-                                        value={price.ladder}
+                                        value={price.ladder ?? ""}
                                         variant="unstyled"
                                         w={"50%"}
                                         p={0}
@@ -324,7 +329,7 @@ export default function Add() {
                                     </Tooltip>
                                     <Tooltip label="Price">
                                       <NumberInput
-                                        value={price.price}
+                                        value={price.price ?? ""}
                                         min={0}
                                         p={0}
                                         w={"50%"}
@@ -366,7 +371,22 @@ export default function Add() {
                         </Flex>
                       </Paper>
                     </Grid.Col>
-                  ) : (
+                  ) : value == "productId" ? (  <Grid.Col span={6} key={value}>
+                    <NumberInput
+                      description={
+                        value.charAt(0).toUpperCase() + value.slice(1)
+                      }
+                      placeholder={
+                        value.charAt(0).toUpperCase() + value.slice(1)
+                      }
+                      {...form.getInputProps(value)}
+                      rightSection={
+                        <Text c={"dimmed"}>
+                          {units[value as keyof typeof units] || ""}
+                        </Text>
+                      }
+                    />
+                  </Grid.Col>) : (
                     <Grid.Col span={6} key={value}>
                       <TextInput
                         description={

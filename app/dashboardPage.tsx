@@ -100,8 +100,7 @@ export default function DashboardPage({
 
   const [isLoading, setLoading] = useState(false);
   const [itemCountState, setItemCountState] = useState(itemCount);
-  const [parentCatalogNamesState, setParentCatalogNamesState] =
-    useState<string[]>(parentCatalogNames);
+  const router = useRouter();
 
   const [parts, setParts] = useState<PartState[]>(loadedParts);
   const [isSearchResult, setIsSearchResult] = useState(
@@ -109,6 +108,9 @@ export default function DashboardPage({
   );
   const [activePage, setPage] = useState(1);
 
+
+  const [parentCatalogNamesState, setParentCatalogNamesState] =
+    useState<string[]>(parentCatalogNames);
   const voltageSearchRef = useRef<ValueSearchRef>(null);
   const resistanceSearchRef = useRef<ValueSearchRef>(null);
   const powerSearchRef = useRef<ValueSearchRef>(null);
@@ -116,7 +118,6 @@ export default function DashboardPage({
   const frequencySearchRef = useRef<ValueSearchRef>(null);
   const capacitanceSearchRef = useRef<ValueSearchRef>(null);
 
-  const router = useRouter();
 
   const searchForm = useForm<FilterState>({
     initialValues: {
@@ -422,7 +423,7 @@ export default function DashboardPage({
                 placeholder="Catalog"
                 {...searchForm.getInputProps("parentCatalogName")}
                 radius={0}
-                data={parentCatalogNamesState}
+                data={parentCatalogNamesState ?? []}
                 clearable
                 searchable
               />
@@ -532,7 +533,7 @@ function PartItem({
       <Table.Td>
         <img
           src={part.productImages[0]}
-          alt={part.title}
+          // alt={part.title}
           width="100"
           height="100"
         />
@@ -619,7 +620,7 @@ function PartItem({
       <Table.Td>{part.brandName}</Table.Td>
       <Table.Td>{part.encapStandard}</Table.Td>
       <Table.Td>
-        <NavLink
+        {part.pdfLink ? <NavLink
           href={part.pdfLink}
           target="_blank"
           label="Link"
@@ -629,10 +630,10 @@ function PartItem({
               <IconPdf />
             </ThemeIcon>
           }
-        />
+        /> : <></>}
       </Table.Td>
       <Table.Td>
-        <NavLink
+        {part.productLink ? <NavLink
           href={part.productLink}
           target="_blank"
           label="Product"
@@ -642,11 +643,11 @@ function PartItem({
               <IconLink />
             </ThemeIcon>
           }
-        />
+        /> : <></>}
       </Table.Td>
       <HoverCard position="left" withArrow>
         <HoverCard.Target>
-          <Table.Td>{part.prices.at(0)?.price + "$"}</Table.Td>
+          <Table.Td>{part.prices.at(0)?.price ? (part.prices.at(0)?.price + "$") : ""}</Table.Td>
         </HoverCard.Target>
         <HoverCard.Dropdown>
           <Table>
