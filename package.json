@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start:migrate": "prisma migrate deploy && npm run start"
+    "start:migrate": "prisma migrate deploy && npm run start",
+    "start:dev": "prisma migrate deploy && prisma db seed && npm run dev",
+    "prisma:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@mantine/carousel": "^7.6.1",
