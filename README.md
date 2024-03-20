@@ -26,6 +26,7 @@ Navigating the World of Parts.
 
 ## ✨ About PartPilot
 <img width="1616" alt="partpilot-dashboard" src="https://i.imgur.com/Csq6zp0.png">
+https://github.com/PartPilotLab/PartPilot/assets/68513575/be758637-9a01-4657-8b66-8cc2fc958c40
 
 
 Welcome to PartPilot, the ultimate open-source solution designed to streamline and enhance your electronics part management experience. Whether you're a hobbyist, a professional engineer, or part of an educational or research institution, PartPilot is here to transform the way you organize, track, and interact with your electronic components.
@@ -76,7 +77,7 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 
 ### 🐳 Using Docker
 
-To host Partpilot on your homeserver using Docker-compose:
+To host PartPilot on your homeserver using docker-compose:
 copy the contents of the `docker-compose-release.yml` into a `docker-compose.yml` file on your server
 start the service using `docker-compose up -d` or `docker compose up -d`.
 
