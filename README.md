@@ -26,8 +26,8 @@ Navigating the World of Parts.
 
 ## ✨ About PartPilot
 <img width="1616" alt="partpilot-dashboard" src="https://i.imgur.com/Csq6zp0.png">
-https://github.com/PartPilotLab/PartPilot/assets/68513575/be758637-9a01-4657-8b66-8cc2fc958c40
-
+<video src="https://github.com/PartPilotLab/PartPilot/assets/68513575/be758637-9a01-4657-8b66-8cc2fc958c40"></video>
+<br/>
 
 Welcome to PartPilot, the ultimate open-source solution designed to streamline and enhance your electronics part management experience. Whether you're a hobbyist, a professional engineer, or part of an educational or research institution, PartPilot is here to transform the way you organize, track, and interact with your electronic components.
 
