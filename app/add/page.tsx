@@ -78,13 +78,11 @@ export default function Add() {
       let productCodeInternal = partInfoFromScanner.pc
         ? partInfoFromScanner.pc
         : productCode;
-      let quantity = partInfoFromScanner.qty ?? 1;
       setLoading(true);
       const response = await fetch("/api/parts/autocomplete", {
         method: "POST",
         body: JSON.stringify({
           productCode: productCodeInternal,
-          quantity: quantity,
         }),
       }).then((response) =>
         response
@@ -102,8 +100,11 @@ export default function Add() {
             //check if exists, otherwise dont create
             if (form.values.hasOwnProperty(key)) {
               if (key == "quantity") {
-                //If I receive a quantity, but not from the scanner
-                form.setFieldValue(key, quantity);
+                //If quantity is received from the scanner
+                if(partInfoFromScanner.qty) {
+                  form.setFieldValue(key, partInfoFromScanner.qty);
+                } 
+                //If I receive a quantity, but not from the scanner --> do nothing
               } else {
                 form.setFieldValue(key, response.body.body[key]);
               }
