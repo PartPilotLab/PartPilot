@@ -108,7 +108,6 @@ export default function DashboardPage({
   );
   const [activePage, setPage] = useState(1);
 
-
   const [parentCatalogNamesState, setParentCatalogNamesState] =
     useState<string[]>(parentCatalogNames);
   const voltageSearchRef = useRef<ValueSearchRef>(null);
@@ -117,7 +116,6 @@ export default function DashboardPage({
   const currentSearchRef = useRef<ValueSearchRef>(null);
   const frequencySearchRef = useRef<ValueSearchRef>(null);
   const capacitanceSearchRef = useRef<ValueSearchRef>(null);
-
 
   const searchForm = useForm<FilterState>({
     initialValues: {
@@ -289,7 +287,11 @@ export default function DashboardPage({
         // if(Math.ceil(itemCountState / itemsPerPage) > Math.ceil(res.body.itemCount)) {
 
         getParts(activePage);
-        setParentCatalogNamesState(res.body.parentCatalogNames);
+        setParentCatalogNamesState(
+          res.body.parentCatalogNames
+            .filter((item) => item.parentCatalogName !== null)
+            .map((item) => item.parentCatalogName)
+        );
         setItemCountState(res.body.itemCount);
       }
       // console.log(res.body);
@@ -323,7 +325,11 @@ export default function DashboardPage({
         } else {
           getParts(activePage);
         }
-        setParentCatalogNamesState(res.body.parentCatalogNames);
+        setParentCatalogNamesState(
+          res.body.parentCatalogNames
+            .filter((item) => item.parentCatalogName !== null)
+            .map((item) => item.parentCatalogName)
+        );
         setItemCountState(res.body.itemCount);
         notifications.show({
           title: "Part Deleted",
@@ -620,34 +626,44 @@ function PartItem({
       <Table.Td>{part.brandName}</Table.Td>
       <Table.Td>{part.encapStandard}</Table.Td>
       <Table.Td>
-        {part.pdfLink ? <NavLink
-          href={part.pdfLink}
-          target="_blank"
-          label="Link"
-          active
-          leftSection={
-            <ThemeIcon>
-              <IconPdf />
-            </ThemeIcon>
-          }
-        /> : <></>}
+        {part.pdfLink ? (
+          <NavLink
+            href={part.pdfLink}
+            target="_blank"
+            label="Link"
+            active
+            leftSection={
+              <ThemeIcon>
+                <IconPdf />
+              </ThemeIcon>
+            }
+          />
+        ) : (
+          <></>
+        )}
       </Table.Td>
       <Table.Td>
-        {part.productLink ? <NavLink
-          href={part.productLink}
-          target="_blank"
-          label="Product"
-          active
-          leftSection={
-            <ThemeIcon>
-              <IconLink />
-            </ThemeIcon>
-          }
-        /> : <></>}
+        {part.productLink ? (
+          <NavLink
+            href={part.productLink}
+            target="_blank"
+            label="Product"
+            active
+            leftSection={
+              <ThemeIcon>
+                <IconLink />
+              </ThemeIcon>
+            }
+          />
+        ) : (
+          <></>
+        )}
       </Table.Td>
       <HoverCard position="left" withArrow>
         <HoverCard.Target>
-          <Table.Td>{part.prices.at(0)?.price ? (part.prices.at(0)?.price + "$") : ""}</Table.Td>
+          <Table.Td>
+            {part.prices.at(0)?.price ? part.prices.at(0)?.price + "$" : ""}
+          </Table.Td>
         </HoverCard.Target>
         <HoverCard.Dropdown>
           <Table>
