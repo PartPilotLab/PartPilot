@@ -64,9 +64,9 @@ export function scannerInputToType(partScannerInput: string): ScannerPartState {
 export interface ScannerPartState {
 	pbn?: string;
 	on?: string;
-	pc: string;
-	pm: string;
-	qty: number;
+	pc: string;	//LCSC Product Code
+	pm: string;	//Manufacturer Product Number
+	qty: number; //Quantity
 	pdi?: string;
 	error?: boolean;
 }
