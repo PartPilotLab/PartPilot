@@ -26,10 +26,11 @@ import { useForm } from "@mantine/form";
 import { IconChevronLeft, IconInfoCircle, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { Carousel } from "@mantine/carousel";
+import UnitForm, { UnitFormRef } from "@/lib/components/unit/UnitForm";
 
 export default function Add() {
   const [isLoading, setLoading] = useState(false);
-
+  //TODO: integrate the UnitForm more efficiently by directly changing the form value from UnitForm
   const form = useForm({
     initialValues: {
       title: undefined,
@@ -59,26 +60,29 @@ export default function Add() {
     },
     validate: {
       productCode: (value) =>
-        value.length > 0 ? null : "Product Code is required",
+        value && value.length > 0 ? null : "Product Code is required",
     },
   });
 
   const [scannerInput, setScannerInput] = useState("");
   const [productCode, setProductCode] = useState("");
 
+  //When the user presses the Autocomplete Button
   async function handleAutocomplete() {
+    //Firstly checking of there is a valid input by the scanner form
     const partInfoFromScanner = scannerInputToType(
       JSON.parse(JSON.stringify(scannerInput)) ?? ""
     );
     const validScannerInput =
       partInfoFromScanner.pc != "" && partInfoFromScanner.pc;
-
+    //Checking of there is a valid input
     if (productCode != "" || validScannerInput) {
-      console.log(partInfoFromScanner);
+      //Using the scanner product code if both are given
       let productCodeInternal = partInfoFromScanner.pc
         ? partInfoFromScanner.pc
         : productCode;
       setLoading(true);
+
       const response = await fetch("/api/parts/autocomplete", {
         method: "POST",
         body: JSON.stringify({
@@ -101,10 +105,20 @@ export default function Add() {
             if (form.values.hasOwnProperty(key)) {
               if (key == "quantity") {
                 //If quantity is received from the scanner
-                if(partInfoFromScanner.qty) {
+                if (partInfoFromScanner.qty) {
                   form.setFieldValue(key, partInfoFromScanner.qty);
-                } 
+                }
                 //If I receive a quantity, but not from the scanner --> do nothing
+              } else if (refMapping.hasOwnProperty(key)) {
+                // If the key corresponds to a ref, update the value of the corresponding UnitForm
+                if (key == "capacitance") {
+                  refMapping[key].current.setValue(
+                    response.body.body[key],
+                    "pF"
+                  );
+                } else {
+                  refMapping[key].current.setValue(response.body.body[key]);
+                }
               } else {
                 form.setFieldValue(key, response.body.body[key]);
               }
@@ -128,9 +142,26 @@ export default function Add() {
   }
 
   async function addPart() {
+    //If the user presses on add part: check if from is valid
     form.validate();
     setLoading(true);
     if (form.isValid()) {
+      //Making an object ob the form (to then update it later)
+      let currentPartInfo = form.values || ({} as any);
+      if (currentPartInfo) {
+        currentPartInfo.voltage =
+          voltageFormRef.current?.getSearchParameters().value;
+        currentPartInfo.resistance =
+          resistanceFormRef.current?.getSearchParameters().value;
+        currentPartInfo.power =
+          powerFormRef.current?.getSearchParameters().value;
+        currentPartInfo.current =
+          currentFormRef.current?.getSearchParameters().value;
+        currentPartInfo.frequency =
+          frequencyFormRef.current?.getSearchParameters().value;
+        currentPartInfo.capacitance =
+          capacitanceFormRef.current?.getSearchParameters().value;
+      }
       const response = await fetch("/api/parts/create", {
         method: "POST",
         body: JSON.stringify(form.values),
@@ -185,6 +216,21 @@ export default function Add() {
     current: "A",
     frequency: "Hz",
     capacitance: "nF",
+  };
+  // A ref for every unit input to keep track of its state and have the possiblity to get its contents when pressing on add part
+  const voltageFormRef = useRef<UnitFormRef>(null);
+  const resistanceFormRef = useRef<UnitFormRef>(null);
+  const powerFormRef = useRef<UnitFormRef>(null);
+  const currentFormRef = useRef<UnitFormRef>(null);
+  const frequencyFormRef = useRef<UnitFormRef>(null);
+  const capacitanceFormRef = useRef<UnitFormRef>(null);
+  const refMapping = {
+    voltage: voltageFormRef,
+    resistance: resistanceFormRef,
+    power: powerFormRef,
+    current: currentFormRef,
+    frequency: frequencyFormRef,
+    capacitance: capacitanceFormRef,
   };
 
   return (
@@ -372,22 +418,31 @@ export default function Add() {
                         </Flex>
                       </Paper>
                     </Grid.Col>
-                  ) : value == "productId" ? (  <Grid.Col span={6} key={value}>
-                    <NumberInput
-                      description={
-                        value.charAt(0).toUpperCase() + value.slice(1)
-                      }
-                      placeholder={
-                        value.charAt(0).toUpperCase() + value.slice(1)
-                      }
-                      {...form.getInputProps(value)}
-                      rightSection={
-                        <Text c={"dimmed"}>
-                          {units[value as keyof typeof units] || ""}
-                        </Text>
-                      }
-                    />
-                  </Grid.Col>) : (
+                  ) : value == "productId" ? (
+                    <Grid.Col span={6} key={value}>
+                      <NumberInput
+                        description={
+                          value.charAt(0).toUpperCase() + value.slice(1)
+                        }
+                        placeholder={
+                          value.charAt(0).toUpperCase() + value.slice(1)
+                        }
+                        {...form.getInputProps(value)}
+                        rightSection={
+                          <Text c={"dimmed"}>
+                            {units[value as keyof typeof units] || ""}
+                          </Text>
+                        }
+                      />
+                    </Grid.Col>
+                  ) : units[value as keyof typeof units] ? (
+                    <Grid.Col span={6} key={value}>
+                      <UnitForm
+                        valueType={value as keyof typeof units}
+                        ref={refMapping[value]}
+                      />
+                    </Grid.Col>
+                  ) : (
                     <Grid.Col span={6} key={value}>
                       <TextInput
                         description={

@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
 
 
       if (partCreate) {
+        console.log("Created part:")
+        console.log(partCreate)
         return NextResponse.json({
           body: partCreate,
           message: "Part created",
