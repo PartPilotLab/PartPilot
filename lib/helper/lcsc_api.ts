@@ -16,7 +16,7 @@ export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
         return acc;
       }, {});
     }
-    
+    console.log(paramVOList);
   
     return {
       id: result.productId.toString(),
@@ -43,7 +43,8 @@ export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
       current: paramVOList["Rated Current"] ?? undefined,
       tolerance: paramVOList["Tolerance"] ?? undefined,
       frequency: paramVOList["Frequency"] ?? undefined,
-      capacitance: paramVOList["Capacitance"] ?? undefined,
+      capacitance: paramVOList["Capacitance"] ?? undefined, //in pF (pico Farad)
+      indutance: paramVOList["Inductance"] ?? undefined,  //in uH (micro Henry)
       createdAt: new Date(),
       updatedAt: new Date(),
     };

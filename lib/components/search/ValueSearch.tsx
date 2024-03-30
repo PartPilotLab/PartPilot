@@ -29,7 +29,8 @@ type ValueType =
   | "resistance"
   | "power"
   | "frequency"
-  | "capacitance"; // Add more value types here
+  | "capacitance"
+  | "inductance"; // Add more value types here
 
 const prefixes: UnitPrefixes[] = [
   "p",
@@ -54,6 +55,7 @@ const baseUnits: Record<ValueType, string> = {
   power: "W",
   frequency: "Hz",
   capacitance: "F",
+  inductance: "H",
 };
 
 const units: Record<ValueType, string[]> = Object.keys(baseUnits).reduce(
@@ -91,6 +93,9 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
         }
         if (valueType === "capacitance" && value !== null && unit !== null) {
           siValue = math.unit(value, unit).toNumber("pF");
+        }
+        if (valueType === "inductance" && value !== null && unit !== null) {
+          siValue = math.unit(value, unit).toNumber("uH");
         }
         return { value: siValue, operation };
       },
