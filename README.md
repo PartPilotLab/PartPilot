@@ -69,6 +69,8 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 
 - 📚 [Prisma](https://prisma.io/)
 
+- 🔒 [NextAuth](https://next-auth.js.org/)
+
 
 
 <a id="usage"></a>
