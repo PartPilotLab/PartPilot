@@ -33,7 +33,8 @@
     "next-auth": "^4.24.7",
     "onscan.js": "^1.5.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@prisma/client": "^5.10.2",
