@@ -41,7 +41,7 @@ export default function NavHeader() {
 
   const items = links.map((link) => {
     const menuItems = link.links?.map((item) => (
-      <Menu.Item component={Link} key={item.link}>{item.label}</Menu.Item>
+      <Menu.Item key={item.link}>{item.label}</Menu.Item>
     ));
 
     if (menuItems) {

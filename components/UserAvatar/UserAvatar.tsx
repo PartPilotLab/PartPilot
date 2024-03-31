@@ -6,7 +6,7 @@ import {FormEvent} from "react";
 import {signIn, signOut, useSession} from "next-auth/react";
 
 type Props = {
-	styles: string
+	styles?: string
 }
 
 export default function UserAvatar({styles}: Props) {
