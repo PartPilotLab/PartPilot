@@ -33,7 +33,13 @@ export default function UserAvatar({styles}: Props) {
 				email: formData.get('email'),
 				password: formData.get('password'),
 				redirect: false
-			})
+			}).then(({ok, error}) => {
+				if (ok) {
+					notifications.show({title: "Success", message: "Registered and logged in successfully!", color: "green"})
+				} else {
+					notifications.show({title: "Error", message: "Something went wrong while logging in. Try to login again.", color: "red"})
+				}
+			});
 		}
 
 	}
