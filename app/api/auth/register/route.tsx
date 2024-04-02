@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
 		const validationResult = UserSchema.safeParse(parsedBody)
 		if (!validationResult.success) return NextResponse
-			.json({error: "Invalid User creation payload"}, {status: 400})
+			.json({error: "Invalid user creation payload"}, {status: 400})
 
 		const hashedPassword = await hash(validationResult.data.password, 10)
 
@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
 
 		return NextResponse.json(user)
 	} catch (e) {
-		return NextResponse.json({error: "Error while creating a new User"}, {status: 400})
+		if(e.code === "P2002") {
+			// Unique constraint error --> Email already exists
+			return NextResponse.json({error: "Email already registered"}, {status: 400})
+		}
+		return NextResponse.json({error: "Error while creating a new user"}, {status: 400})
 	}
 }
