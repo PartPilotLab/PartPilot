@@ -13,7 +13,7 @@ import {
   ScrollArea,
   Divider,
   rem,
-  Stack
+  Stack,
 } from "@mantine/core";
 import classes from "./NavHeader.module.css";
 import { IconChevronDown, IconPlus } from "@tabler/icons-react";
@@ -128,6 +128,7 @@ export default function NavHeader() {
               hiddenFrom="sm"
               c={"gray"}
             />
+            <Group>
               <Button
                 rightSection={<IconPlus />}
                 onClick={() => {
@@ -144,11 +145,10 @@ export default function NavHeader() {
               >
                 Add Part
               </Button>
+              <UserAvatar />
+            </Group>
           </Group>
         </Container>
-        <Stack visibleFrom="sm">
-          <UserAvatar styles={classes.avatar}/>
-        </Stack>
       </header>
       <Drawer
         opened={drawerOpened}
@@ -180,7 +180,7 @@ export default function NavHeader() {
               Add Part
             </Button>
           </Group>
-          <UserAvatar/>
+          <UserAvatar />
         </ScrollArea>
       </Drawer>
     </Box>
