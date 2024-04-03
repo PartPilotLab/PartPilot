@@ -16,10 +16,12 @@ import {
   Stack,
 } from "@mantine/core";
 import classes from "./NavHeader.module.css";
-import { IconChevronDown, IconPlayerPlay, IconPlus } from "@tabler/icons-react";
+import { IconChevronDown, IconPlus } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import onScan from "onscan.js";
 import { useDisclosure } from "@mantine/hooks";
+import UserAvatar from "../../components/UserAvatar/UserAvatar";
+import Link from "next/link";
 
 const links = [
   { link: "/", label: "Dashboard" },
@@ -51,7 +53,7 @@ export default function NavHeader() {
           withinPortal
         >
           <Menu.Target>
-            <a
+            <Link
               href={link.link}
               className={classes.link}
               onClick={(event) => event.preventDefault()}
@@ -60,7 +62,7 @@ export default function NavHeader() {
                 <span className={classes.linkLabel}>{link.label}</span>
                 <IconChevronDown size="0.9rem" stroke={1.5} />
               </Center>
-            </a>
+            </Link>
           </Menu.Target>
           <Menu.Dropdown>{menuItems}</Menu.Dropdown>
         </Menu>
@@ -68,7 +70,7 @@ export default function NavHeader() {
     }
 
     return (
-      <a
+      <Link
         key={link.label}
         href={link.link}
         className={classes.link}
@@ -97,7 +99,7 @@ export default function NavHeader() {
         }}
       >
         {link.label}
-      </a>
+      </Link>
     );
   });
 
@@ -126,7 +128,7 @@ export default function NavHeader() {
               hiddenFrom="sm"
               c={"gray"}
             />
-            {
+            <Group>
               <Button
                 rightSection={<IconPlus />}
                 onClick={() => {
@@ -143,7 +145,8 @@ export default function NavHeader() {
               >
                 Add Part
               </Button>
-            }
+              <UserAvatar />
+            </Group>
           </Group>
         </Container>
       </header>
@@ -154,13 +157,11 @@ export default function NavHeader() {
         padding="md"
         title="Navigation"
         hiddenFrom="sm"
-        zIndex={1000000}
       >
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my={"sm"} />
           <Stack>{items}</Stack>
           <Divider my={"sm"} />
-
           <Group justify="center" grow pb="xl" px="md">
             <Button
               rightSection={<IconPlus />}
@@ -179,6 +180,7 @@ export default function NavHeader() {
               Add Part
             </Button>
           </Group>
+          <UserAvatar />
         </ScrollArea>
       </Drawer>
     </Box>

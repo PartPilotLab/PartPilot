@@ -4,6 +4,7 @@ import "@mantine/carousel/styles.css";
 import "./globals.css";
 import "@mantine/notifications/styles.css";
 import {PageLayout} from "@/components/PageLayout";
+import {getServerSession} from "next-auth";
 
 export const metadata: Metadata = {
   title: "PartPilot - Electronics Part Management",
@@ -15,6 +16,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession()
+
   return (
     <html lang="en">
       <head>
@@ -58,7 +61,7 @@ export default async function RootLayout({
         <meta name="google" content="notranslate" />
       </head>
       <body>
-        <PageLayout>
+        <PageLayout session={session}>
           {children}
         </PageLayout>
       </body>

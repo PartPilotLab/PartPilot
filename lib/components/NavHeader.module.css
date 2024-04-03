@@ -35,3 +35,11 @@
 .linkLabel {
   margin-right: rem(5px);
 }
+
+.avatar {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  margin: 12px;
+}
+
