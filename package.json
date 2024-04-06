@@ -9,29 +9,36 @@
     "lint": "next lint",
     "start:migrate": "prisma migrate deploy && npm run start",
     "start:dev": "prisma migrate deploy && prisma db seed && npm run dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "prisma:studio": "prisma studio",
+    "prisma:generate": "prisma generate"
   },
   "prisma": {
     "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^1.5.2",
     "@mantine/carousel": "^7.6.1",
     "@mantine/core": "^7.6.1",
     "@mantine/form": "^7.6.1",
     "@mantine/hooks": "^7.6.1",
     "@mantine/notifications": "^7.6.1",
     "@tabler/icons-react": "^2.47.0",
+    "bcrypt": "^5.1.1",
     "embla-carousel-react": "^7.1.0",
     "framer-motion": "^11.0.5",
     "lodash": "^4.17.21",
     "mathjs": "^12.4.0",
     "next": "14.1.0",
+    "next-auth": "^4.24.7",
     "onscan.js": "^1.5.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@prisma/client": "^5.10.2",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.11.19",
     "@types/onscan.js": "^1.5.6",
     "@types/react": "^18",

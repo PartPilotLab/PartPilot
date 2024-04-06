@@ -7,6 +7,8 @@ import NavFooter from "@/lib/components/NavFooter";
 import {createTheme, MantineProvider} from "@mantine/core";
 import localFont from "next/font/local";
 import {SettingsProvider, SettingsConsumer, Settings} from "@/components/SettingsProvider";
+import {SessionProvider} from "next-auth/react";
+import {Session} from "next-auth";
 
 const myFont = localFont({
 	src: "../../public/fonts/Montserrat-Regular.woff2",
@@ -32,13 +34,15 @@ const theme = createTheme({
 });
 
 type Props = {
-	children: ReactNode
+	children: ReactNode,
+	session: Session
 }
 
-export default function PageLayout({children}: Props) {
+export default function PageLayout({children, session}: Props) {
 	return (
 		<MantineProvider theme={theme}>
 			<Notifications/>
+			<SessionProvider session={session}>
 			<SettingsProvider>
 				<SettingsConsumer>
 					{({initialized}: Settings) => {
@@ -56,6 +60,7 @@ export default function PageLayout({children}: Props) {
 					}}
 				</SettingsConsumer>
 			</SettingsProvider>
+			</SessionProvider>
 		</MantineProvider>
 	)
 }
