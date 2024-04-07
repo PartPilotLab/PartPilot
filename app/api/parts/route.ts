@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
           tolerance: partInfo.tolerance,
           frequency: partInfo.frequency,
           capacitance: partInfo.capacitance,
+          inductance: partInfo.inductance,
         },
       });
       const itemCount = await prisma.parts.aggregate({_count: true}); 

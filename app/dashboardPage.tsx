@@ -91,6 +91,10 @@ export interface FilterState {
 		operation: Operations | string | null;
 		value: number | null;
 	}; //value is in pF
+	inductance?: {
+		operation: Operations | string | null;
+		value: number | null;
+	}; //value is in uH
 }
 
 export default function DashboardPage({
@@ -124,12 +128,14 @@ export default function DashboardPage({
 	const currentSearchRef = useRef<ValueSearchRef>(null);
 	const frequencySearchRef = useRef<ValueSearchRef>(null);
 	const capacitanceSearchRef = useRef<ValueSearchRef>(null);
+	const inductanceSearchRef = useRef<ValueSearchRef>(null);
 
 	const searchForm = useForm<FilterState>({
 		initialValues: {
 			productTitle: null,
 			productCode: null,
 			productDescription: null,
+			encapStandard: null,
 			parentCatalogName: searchCatalog || null,
 		},
 	});
@@ -201,6 +207,7 @@ export default function DashboardPage({
 					frequencySearchRef.current?.getSearchParameters();
 				currentSearchFilter.capacitance =
 					capacitanceSearchRef.current?.getSearchParameters();
+				currentSearchFilter.inductance = inductanceSearchRef.current?.getSearchParameters();
 			}
 			console.log(currentSearchFilter);
 
@@ -265,6 +272,7 @@ export default function DashboardPage({
 		currentSearchRef?.current?.clear();
 		frequencySearchRef?.current?.clear();
 		capacitanceSearchRef?.current?.clear();
+		inductanceSearchRef?.current?.clear();
 		router.replace("/", undefined);
 		searchForm.reset();
 		searchForm.setFieldValue("parentCatalogName", null);
@@ -411,7 +419,7 @@ export default function DashboardPage({
 						})}
 					>
 						<SimpleGrid
-							cols={{ lg: 6, sm: 2, xl: 6, md: 4 }}
+							cols={{ lg: 7, sm: 2, xl: 7, md: 4 }}
 							spacing={2}
 						>
 							<ValueSearch
@@ -438,11 +446,20 @@ export default function DashboardPage({
 								valueType="capacitance"
 								ref={capacitanceSearchRef}
 							/>
+							<ValueSearch
+								valueType="inductance"
+								ref={inductanceSearchRef}
+							/>
 
 							<TextInput
 								placeholder="Title"
 								radius={0}
 								{...searchForm.getInputProps("productTitle")}
+							/>
+							<TextInput
+								placeholder="Encap Standard"
+								radius={0}
+								{...searchForm.getInputProps("encapStandard")}
 							/>
 							<TextInput
 								placeholder="Product Code"
@@ -533,6 +550,7 @@ export default function DashboardPage({
 										<Table.Th>Tolerance</Table.Th>
 										<Table.Th>Frequency</Table.Th>
 										<Table.Th>Capacitance</Table.Th>
+										<Table.Th>Inductance</Table.Th>
 										<Table.Th>Delete</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
@@ -752,6 +770,7 @@ function PartItem({
 			<Table.Td>{part.tolerance}</Table.Td>
 			<Table.Td>{formatFrequency(part.frequency)}</Table.Td>
 			<Table.Td>{formatCapacitance(part.capacitance)}</Table.Td>
+			<Table.Td>{formatInductance(part.inductance)}</Table.Td>
 			<Table.Td>
 				<Button
 					leftSection={
@@ -810,4 +829,7 @@ const formatFrequency = (frequency: any) =>
 	}`;
 const formatCapacitance = (capacitance: any) => {
 	return `${round(unit(Number(capacitance), "pF").toNumeric("nF"))} nF`;
+};
+const formatInductance = (inductance: any) => {
+	return `${round(Number(inductance ?? null))} uH`;
 };
