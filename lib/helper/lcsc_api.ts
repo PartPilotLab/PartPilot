@@ -44,7 +44,7 @@ export function extractPartInfoFromLCSCResponse(lcsc_response: any): PartState {
       tolerance: paramVOList["Tolerance"] ?? undefined,
       frequency: paramVOList["Frequency"] ?? undefined,
       capacitance: paramVOList["Capacitance"] ?? undefined, //in pF (pico Farad)
-      indutance: paramVOList["Inductance"] ?? undefined,  //in uH (micro Henry)
+      inductance: paramVOList["Inductance"] ?? undefined,  //in uH (micro Henry)
       createdAt: new Date(),
       updatedAt: new Date(),
     };
