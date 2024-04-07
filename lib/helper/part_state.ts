@@ -35,7 +35,7 @@ export interface PartState {
     frequency?: number; //param_11373_n --> paramNameEn: "Frequency"
     // type?: string;
     capacitance?: number; //param_10951_n --> paramNameEn: "Capacitance"
-    indutance?: number; //--> paramNameEn: "Inductance"
+    inductance?: number; //--> paramNameEn: "Inductance"
     // tempretureCoefficient?: number;
     // minBuyQuantity?: number;
 
