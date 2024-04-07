@@ -116,6 +116,9 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
             w={"20%"}
             size="sm"
             radius={0}
+            rightSection={<></>}
+            rightSectionWidth={0}
+            rightSectionPointerEvents="none"
           />
           <NumberInput
             placeholder={valueType.charAt(0).toUpperCase() + valueType.slice(1)}
@@ -132,7 +135,9 @@ const ValueSearch = forwardRef<ValueSearchRef, ValueSearchProps>(
             w={"25%"}
             size="sm"
             radius={0}
-            rightSection={null}
+            rightSection={<></>}
+            rightSectionWidth={0}
+            rightSectionPointerEvents="none"
           />
         </Group>
       </Paper>
