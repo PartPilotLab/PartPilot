@@ -35,12 +35,13 @@ model Parts {
 
   prices Json?
 
-  voltage     Float? // Is a "double precision" in Postgres
+  voltage     Float? //Float is a "double precision" in Postgres
   capacitance Float?
   current     Float?
   power       Float?
   resistance  Float?
   frequency   Float?
+  inductance  Float?
 
   tolerance String?
 

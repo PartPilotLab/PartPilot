@@ -52,10 +52,15 @@ export async function POST(request: NextRequest) {
         equals: filter.parentCatalogName,
       };
     }
+    if (filter.encapStandard) {
+      where.encapStandard = {
+        contains: filter.encapStandard,
+      };
+    }
 
     // Add conditions based on the filter object
     for (const key in filter) {
-      if (key === 'productCode' || key === 'productTitle' || key === 'productDescription' || key === 'parentCatalogName') {
+      if (key === 'productCode' || key === 'productTitle' || key === 'productDescription' || key === 'parentCatalogName' || key === 'encapStandard') {
         continue; // Skip these keys, they are already handled above
       }
       if (

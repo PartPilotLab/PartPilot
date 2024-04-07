@@ -53,6 +53,7 @@ export default function Add() {
       current: undefined,
       frequency: undefined,
       capacitance: undefined,
+      inductance: undefined,
       prices: [] as {
         ladder: string;
         price: number;
@@ -116,6 +117,11 @@ export default function Add() {
                     response.body.body[key],
                     "pF"
                   );
+                } else if (key == "inductance") {
+                  refMapping[key].current.setValue(
+                    response.body.body[key],
+                    "mH"
+                  );
                 } else {
                   refMapping[key].current.setValue(response.body.body[key]);
                 }
@@ -161,6 +167,8 @@ export default function Add() {
           frequencyFormRef.current?.getSearchParameters().value;
         currentPartInfo.capacitance =
           capacitanceFormRef.current?.getSearchParameters().value;
+        currentPartInfo.inductance =
+          inductanceFormRef.current?.getSearchParameters().value;
       }
       const response = await fetch("/api/parts/create", {
         method: "POST",
@@ -216,6 +224,7 @@ export default function Add() {
     current: "A",
     frequency: "Hz",
     capacitance: "nF",
+    inductance: "uH",
   };
   // A ref for every unit input to keep track of its state and have the possiblity to get its contents when pressing on add part
   const voltageFormRef = useRef<UnitFormRef>(null);
@@ -224,6 +233,7 @@ export default function Add() {
   const currentFormRef = useRef<UnitFormRef>(null);
   const frequencyFormRef = useRef<UnitFormRef>(null);
   const capacitanceFormRef = useRef<UnitFormRef>(null);
+  const inductanceFormRef = useRef<UnitFormRef>(null);
   const refMapping = {
     voltage: voltageFormRef,
     resistance: resistanceFormRef,
@@ -231,6 +241,7 @@ export default function Add() {
     current: currentFormRef,
     frequency: frequencyFormRef,
     capacitance: capacitanceFormRef,
+    inductance: inductanceFormRef,
   };
 
   return (

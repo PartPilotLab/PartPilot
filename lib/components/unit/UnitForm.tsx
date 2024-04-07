@@ -3,7 +3,7 @@ import { unit } from "mathjs";
 import { useState, forwardRef, useImperativeHandle } from "react";
 
 import { create, all } from "mathjs";
-//Todos: pay attention to nF; get initial value from autocomplete (and type in case of capacitance); 
+//Todos: pay attention to nF; get initial value from autocomplete (and type in case of capacitance);
 
 const math = create(all);
 interface UnitFormProps {
@@ -30,7 +30,8 @@ type ValueType =
   | "resistance"
   | "power"
   | "frequency"
-  | "capacitance"; // Add more value types here
+  | "capacitance"
+  | "inductance"; // Add more value types here
 
 const prefixes: UnitPrefixes[] = [
   "p",
@@ -55,6 +56,7 @@ const baseUnits: Record<ValueType, string> = {
   power: "W",
   frequency: "Hz",
   capacitance: "F",
+  inductance: "H",
 };
 
 const units: Record<ValueType, string[]> = Object.keys(baseUnits).reduce(
@@ -66,7 +68,6 @@ const units: Record<ValueType, string[]> = Object.keys(baseUnits).reduce(
   },
   {} as Record<ValueType, string[]>
 );
-
 
 export interface UnitFormRef {
   getSearchParameters: () => { value: number | null };
@@ -92,13 +93,16 @@ const UnitForm = forwardRef<UnitFormRef, UnitFormProps>(
         if (valueType === "capacitance" && value !== null && unit !== null) {
           siValue = math.unit(value, unit).toNumber("pF");
         }
+        if (valueType === "inductance" && value !== null && unit !== null) {
+          siValue = math.unit(value, unit).toNumber("uH");
+        }
         return { value: siValue };
       },
       setValue: (value: number | null, unit?: string) => {
-        if(unit) {
-          setUnit(unit)
+        if (unit) {
+          setUnit(unit);
         }
-        setValue(value)
+        setValue(value);
       },
       clear: () => {
         setValue(null);
