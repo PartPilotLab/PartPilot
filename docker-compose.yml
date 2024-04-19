@@ -17,3 +17,5 @@ services:
       - 3000:3000
     environment:
       - DATABASE_URL=postgresql://partpilot:partpilotPass@postgres:5432/partpilotdb?schema=public
+      - NEXTAUTH_SECRET=secret
+      - NEXTAUTH_URL=http://localhost:3000

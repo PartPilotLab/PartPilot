@@ -19,6 +19,8 @@ services:
       - 3000:3000   #replace host port(left side) as needed
     environment:
       - DATABASE_URL=postgresql://partpilot:partpilotPass@postgres:5432/partpilotdb?schema=public
+      - NEXTAUTH_SECRET=secret
+      - NEXTAUTH_URL=http://localhost:3000
 
 volumes:  #remove when using bind mount
   pgdata:
