@@ -1,0 +1,16 @@
+.root {
+    margin-top: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 438px);
+}
+
+.form {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+}
