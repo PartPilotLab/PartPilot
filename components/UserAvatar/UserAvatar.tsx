@@ -1,16 +1,16 @@
 'use client'
 
-import {Avatar, Button, Menu, Stack, Tabs, TextInput} from "@mantine/core";
+import { Avatar, Button, Menu, Stack, Tabs, TextInput } from "@mantine/core";
 import classes from "./UserAvatar.module.css";
-import {FormEvent} from "react";
-import {signIn, signOut, useSession} from "next-auth/react";
+import { FormEvent } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { notifications } from "@mantine/notifications";
 
 type Props = {
 	styles?: string
 }
 
-export default function UserAvatar({styles}: Props) {
+export default function UserAvatar({ styles }: Props) {
 	const session = useSession()
 
 	const handleRegistration = async (e: FormEvent<HTMLFormElement>) => {
@@ -26,22 +26,21 @@ export default function UserAvatar({styles}: Props) {
 		}).then(res => res.json())
 		if (response.error) {
 			console.error(response.error)
-			notifications.show({title: "Error", message: response.error, color: "red"})
+			notifications.show({ title: "Error", message: response.error, color: "red" })
 		} else {
 			//Sign user in when registration is successful
 			await signIn('credentials', {
 				email: formData.get('email'),
 				password: formData.get('password'),
 				redirect: false
-			}).then(({ok, error}) => {
+			}).then(({ ok }) => {
 				if (ok) {
-					notifications.show({title: "Success", message: "Registered and logged in successfully!", color: "green"})
+					notifications.show({ title: "Success", message: "Registered and logged in successfully!", color: "green" })
 				} else {
-					notifications.show({title: "Error", message: "Something went wrong while logging in. Try to login again.", color: "red"})
+					notifications.show({ title: "Error", message: "Something went wrong while logging in. Try to login again.", color: "red" })
 				}
 			});
 		}
-
 	}
 
 	const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
@@ -54,9 +53,9 @@ export default function UserAvatar({styles}: Props) {
 		}).then(({ ok, error }) => {
 			//Check if the login was successful
 			if (ok) {
-				notifications.show({title: "Success", message: "Logged in successfully!", color: "green"})
+				notifications.show({ title: "Success", message: "Logged in successfully!", color: "green" })
 			} else {
-				notifications.show({title: "Error", message: "You have entered an invalid email or password.", color: "red"})
+				notifications.show({ title: "Error", message: "You have entered an invalid email or password.", color: "red" })
 			}
 		})
 	}
