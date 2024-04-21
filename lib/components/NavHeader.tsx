@@ -23,6 +23,7 @@ import { useDisclosure } from "@mantine/hooks";
 import UserAvatar from "../../components/UserAvatar/UserAvatar";
 import Link from "next/link";
 import { ReactNode } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 type NavLink = {
   link: string;
@@ -43,6 +44,7 @@ const mobileLinks: Array<NavLink> = [
 ]
 
 export default function NavHeader() {
+  const session = useSession()
   const router = useRouter();
   const pathname = usePathname();
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -139,7 +141,7 @@ export default function NavHeader() {
               hiddenFrom="sm"
               c={"gray"}
             />
-            <Group>
+            <Group visibleFrom="sm">
               <Button
                 rightSection={<IconPlus />}
                 onClick={() => {
@@ -171,7 +173,14 @@ export default function NavHeader() {
       >
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my={"sm"} />
-          <Stack>{items([...links, ...mobileLinks])}</Stack>
+          <Stack>
+            {items(links)}
+            {session.data?.user?.email ? (
+              <Link href='/' className={classes.link} onClick={() => signOut()}>Log Out</Link>
+            ) : (
+              items(mobileLinks)
+            )}
+          </Stack>
           <Divider my={"sm"} />
           <Group justify="center" grow pb="xl" px="md">
             <Button
@@ -193,6 +202,6 @@ export default function NavHeader() {
           </Group>
         </ScrollArea>
       </Drawer>
-    </Box>
+    </Box >
   );
 }
