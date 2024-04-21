@@ -1,5 +1,5 @@
-export default function LogInPage() {
-    return (
-        <div>Log In Page</div>
-    )
+import { LoginPage } from "@/components/Auth";
+
+export default async function Login() {
+    return <LoginPage />
 }
