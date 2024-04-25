@@ -22,86 +22,99 @@ import onScan from "onscan.js";
 import { useDisclosure } from "@mantine/hooks";
 import UserAvatar from "../../components/UserAvatar/UserAvatar";
 import Link from "next/link";
+import { ReactNode } from "react";
+import { signOut, useSession } from "next-auth/react";
 
-const links = [
-  { link: "/", label: "Dashboard" },
-  { link: "/categories", label: "Categories" },
-  // { link: "/about", label: "About Us" },
-] as {
+type NavLink = {
   link: string;
   label: string;
   links?: { link: string; label: string }[];
-}[];
+  isHiddenInDesktop?: boolean
+}
+
+const links: Array<NavLink> = [
+  { link: "/", label: "Dashboard" },
+  { link: "/categories", label: "Categories" }
+  // { link: "/about", label: "About Us" },
+];
+
+const mobileLinks: Array<NavLink> = [
+  { link: "/login", label: "Log In", isHiddenInDesktop: true },
+  { link: "/signup", label: "Sign Up", isHiddenInDesktop: true }
+]
 
 export default function NavHeader() {
+  const session = useSession()
   const router = useRouter();
   const pathname = usePathname();
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
 
-  const items = links.map((link) => {
-    const menuItems = link.links?.map((item) => (
-      <Menu.Item key={item.link}>{item.label}</Menu.Item>
-    ));
+  const items = (navLinks: Array<NavLink>): Array<ReactNode> => {
+    return navLinks.map((link) => {
+      const menuItems = link.links?.map((item) => (
+        <Menu.Item key={item.link}>{item.label}</Menu.Item>
+      ));
 
-    if (menuItems) {
+      if (menuItems) {
+        return (
+          <Menu
+            key={link.label}
+            trigger="hover"
+            transitionProps={{ exitDuration: 0 }}
+            withinPortal
+          >
+            <Menu.Target>
+              <Link
+                href={link.link}
+                className={classes.link}
+                onClick={(event) => event.preventDefault()}
+              >
+                <Center>
+                  <span className={classes.linkLabel}>{link.label}</span>
+                  <IconChevronDown size="0.9rem" stroke={1.5} />
+                </Center>
+              </Link>
+            </Menu.Target>
+            <Menu.Dropdown>{menuItems}</Menu.Dropdown>
+          </Menu>
+        );
+      }
+
       return (
-        <Menu
+        <Link
           key={link.label}
-          trigger="hover"
-          transitionProps={{ exitDuration: 0 }}
-          withinPortal
-        >
-          <Menu.Target>
-            <Link
-              href={link.link}
-              className={classes.link}
-              onClick={(event) => event.preventDefault()}
-            >
-              <Center>
-                <span className={classes.linkLabel}>{link.label}</span>
-                <IconChevronDown size="0.9rem" stroke={1.5} />
-              </Center>
-            </Link>
-          </Menu.Target>
-          <Menu.Dropdown>{menuItems}</Menu.Dropdown>
-        </Menu>
-      );
-    }
-
-    return (
-      <Link
-        key={link.label}
-        href={link.link}
-        className={classes.link}
-        onClick={(event) => {
-          event.preventDefault();
-          if (link.link === "/") {
-            if (pathname !== link.link) {
-              router.push(link.link);
+          href={link.link}
+          className={classes.link}
+          onClick={(event) => {
+            event.preventDefault();
+            if (link.link === "/") {
+              if (pathname !== link.link) {
+                router.push(link.link);
+              } else {
+                window.location.href = "/";
+              }
             } else {
-              window.location.href = "/";
-            }
-          } else {
-            if (pathname !== link.link) {
-              if (
-                typeof document !== "undefined" &&
-                typeof onScan !== "undefined"
-              ) {
-                if (onScan.isAttachedTo(document)) {
-                  onScan.detachFrom(document);
+              if (pathname !== link.link) {
+                if (
+                  typeof document !== "undefined" &&
+                  typeof onScan !== "undefined"
+                ) {
+                  if (onScan.isAttachedTo(document)) {
+                    onScan.detachFrom(document);
+                  }
                 }
               }
+              router.push(link.link);
             }
-            router.push(link.link);
-          }
-          closeDrawer();
-        }}
-      >
-        {link.label}
-      </Link>
-    );
-  });
+            closeDrawer();
+          }}
+        >
+          {link.label}
+        </Link>
+      );
+    })
+  };
 
   return (
     <Box>
@@ -120,7 +133,7 @@ export default function NavHeader() {
               style={{ cursor: "pointer" }}
             />
             <Group gap={5} visibleFrom="sm">
-              {items}
+              {items(links)}
             </Group>
             <Burger
               opened={drawerOpened}
@@ -128,7 +141,7 @@ export default function NavHeader() {
               hiddenFrom="sm"
               c={"gray"}
             />
-            <Group>
+            <Group visibleFrom="sm">
               <Button
                 rightSection={<IconPlus />}
                 onClick={() => {
@@ -160,7 +173,14 @@ export default function NavHeader() {
       >
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my={"sm"} />
-          <Stack>{items}</Stack>
+          <Stack>
+            {items(links)}
+            {session.data?.user?.email ? (
+              <Link href='/' className={classes.link} onClick={() => signOut()}>Log Out</Link>
+            ) : (
+              items(mobileLinks)
+            )}
+          </Stack>
           <Divider my={"sm"} />
           <Group justify="center" grow pb="xl" px="md">
             <Button
@@ -180,9 +200,8 @@ export default function NavHeader() {
               Add Part
             </Button>
           </Group>
-          <UserAvatar />
         </ScrollArea>
       </Drawer>
-    </Box>
+    </Box >
   );
 }
