@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     console.log(pcNumber);
 
     const LSCSPart = await fetch(
-      "https://wmsc.lcsc.com/wmsc/product/detail?productCode=" + pcNumber
+      "https://wmsc.lcsc.com/ftps/wm/product/detail?productCode=" + pcNumber
     )
       .then((response) => {
         return response.json();
@@ -24,7 +24,5 @@ export async function POST(request: NextRequest) {
   } catch (error: ErrorCallback | any) {
     console.log(error);
     return NextResponse.json({ status: 500, error: error });
-
-    // res.status(500).json({ message: e.message });
   }
 }
