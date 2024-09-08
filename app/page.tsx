@@ -31,7 +31,7 @@ export default async function Home(props: Props) {
   return (
     <DashboardPage
       loadedParts={parts}
-      itemCount={aggregatedParts._count}
+      itemCount={parts.length}
       parentCatalogNames={(parentCatalogNames as string[]) ?? []}
       searchCatalog={catalog}
     />
