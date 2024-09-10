@@ -228,6 +228,7 @@ export default function DashboardPage({
 			const response = res.body.parts as PartState[];
 			if (response) {
 				setParts(response);
+				setItemCountState(response.length)
 				if (!isSearchResult) {
 					setIsSearchResult(true);
 					setPage(page);
