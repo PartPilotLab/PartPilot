@@ -4,15 +4,13 @@ import CategoriesPage from "./categoriesPage";
 import prisma from "@/lib/prisma";
 
 export default async function Categories() {
-  const catalogItems = await prisma.parts.groupBy({
-    by: ["parentCatalogName", "productImages"],
-    
-     
+  const catalogItems = await prisma.parts.findMany({
+    distinct: ['parentCatalogName'],
+    select: {
+      parentCatalogName: true,
+      productImages: true,
+    },
   });
 
-  return (
-    <CategoriesPage
-    catalogItems={catalogItems as PartState[] ?? []}
-    />
-  );
+	return <CategoriesPage catalogItems={(catalogItems as PartState[]) ?? []} />;
 }
