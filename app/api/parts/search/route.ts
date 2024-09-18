@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 // For advanced search: fetch all distinct values for each column
 // Then have a selector allowing to choose from those values
@@ -22,31 +24,36 @@ function convertOperation(operation: string) {
 }
 
 export async function POST(request: NextRequest) {
+  // Get user session
+  const session = await getServerSession(authOptions);
+
   try {
     const res = await request.json();
     const filter = res.filter;
     const page = res.page;
 
-    let where: Prisma.PartsWhereInput = {};
+    let where: Prisma.PartsWhereInput = {
+      userId: session.user.id,
+    };
 
     if (filter.productCode) {
       where.productCode = {
         contains: filter.productCode,
       };
     }
-    
+
     if (filter.productTitle) {
       where.title = {
         contains: filter.productTitle,
       };
     }
-    
+
     if (filter.productDescription) {
       where.productDescription = {
         contains: filter.productDescription,
       };
     }
-    
+
     if (filter.parentCatalogName) {
       where.parentCatalogName = {
         equals: filter.parentCatalogName,
@@ -60,7 +67,13 @@ export async function POST(request: NextRequest) {
 
     // Add conditions based on the filter object
     for (const key in filter) {
-      if (key === 'productCode' || key === 'productTitle' || key === 'productDescription' || key === 'parentCatalogName' || key === 'encapStandard') {
+      if (
+        key === "productCode" ||
+        key === "productTitle" ||
+        key === "productDescription" ||
+        key === "parentCatalogName" ||
+        key === "encapStandard"
+      ) {
         continue; // Skip these keys, they are already handled above
       }
       if (

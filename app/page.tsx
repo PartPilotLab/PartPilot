@@ -44,17 +44,24 @@ export default async function Home(props: Props) {
   }
 
   //Get catalog search parameter from URL
-  const catalog = props.searchParams.catalog;
+  const catalog = props.searchParams?.catalog;
   //Get first 10 items
   const parts = await prisma.parts.findMany({
+    where: {
+      parentCatalogName: catalog ? { equals: catalog } : undefined,
+      userId: session.user.id, // Always filter by the current user's ID
+    },
     orderBy: { id: "desc" },
     take: 10,
-    where: { parentCatalogName: { equals: catalog }, userId: session.user.id },
   });
   //Get total part count and parent catalog names
-  const aggregatedParts = await prisma.parts.aggregate({ _count: true });
+  const aggregatedParts = await prisma.parts.aggregate({
+    where: { userId: session.user.id },
+    _count: true,
+  });
   const parentCatalogNamesRaw = await prisma.parts.groupBy({
     by: ["parentCatalogName"],
+    where: { userId: session.user.id },
   });
   //Filter parent catalog names (exclude null values)
   const parentCatalogNames = parentCatalogNamesRaw
@@ -63,7 +70,7 @@ export default async function Home(props: Props) {
 
   return (
     <DashboardPage
-      loadedParts={parts as PartState[]}
+      loadedParts={parts as unknown as PartState[]}
       itemCount={parts.length}
       parentCatalogNames={(parentCatalogNames as string[]) ?? []}
       searchCatalog={catalog}
