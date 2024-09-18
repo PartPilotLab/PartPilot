@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { Container, Text } from "@mantine/core";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 import DashboardPage from "./dashboardPage";
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
 };
 
 export default async function Home(props: Props) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
     return (
