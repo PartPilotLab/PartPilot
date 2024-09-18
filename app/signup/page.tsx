@@ -1,5 +1,13 @@
 import { SignupPage } from "@/components/Auth";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "../api/auth/[...nextauth]/route";
 
-export default function Signup() {
-    return <SignupPage />
+export default async function Signup() {
+  const session = await getServerSession(authOptions);
+  if (session && session.user) {
+    redirect("/");
+  }
+
+  return <SignupPage />;
 }
