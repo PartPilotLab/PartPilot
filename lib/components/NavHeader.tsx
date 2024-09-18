@@ -29,22 +29,22 @@ type NavLink = {
   link: string;
   label: string;
   links?: { link: string; label: string }[];
-  isHiddenInDesktop?: boolean
-}
+  isHiddenInDesktop?: boolean;
+};
 
 const links: Array<NavLink> = [
   { link: "/", label: "Dashboard" },
-  { link: "/categories", label: "Categories" }
+  { link: "/categories", label: "Categories" },
   // { link: "/about", label: "About Us" },
 ];
 
 const mobileLinks: Array<NavLink> = [
   { link: "/login", label: "Log In", isHiddenInDesktop: true },
-  { link: "/signup", label: "Sign Up", isHiddenInDesktop: true }
-]
+  { link: "/signup", label: "Sign Up", isHiddenInDesktop: true },
+];
 
 export default function NavHeader() {
-  const session = useSession()
+  const session = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -113,7 +113,7 @@ export default function NavHeader() {
           {link.label}
         </Link>
       );
-    })
+    });
   };
 
   return (
@@ -142,22 +142,24 @@ export default function NavHeader() {
               c={"gray"}
             />
             <Group visibleFrom="sm">
-              <Button
-                rightSection={<IconPlus />}
-                onClick={() => {
-                  if (
-                    typeof document !== "undefined" &&
-                    typeof onScan !== "undefined"
-                  ) {
-                    if (onScan.isAttachedTo(document)) {
-                      onScan.detachFrom(document);
+              {session.status === "authenticated" && (
+                <Button
+                  rightSection={<IconPlus />}
+                  onClick={() => {
+                    if (
+                      typeof document !== "undefined" &&
+                      typeof onScan !== "undefined"
+                    ) {
+                      if (onScan.isAttachedTo(document)) {
+                        onScan.detachFrom(document);
+                      }
                     }
-                  }
-                  router.push("/add");
-                }}
-              >
-                Add Part
-              </Button>
+                    router.push("/add");
+                  }}
+                >
+                  Add Part
+                </Button>
+              )}
               <UserAvatar />
             </Group>
           </Group>
@@ -176,32 +178,38 @@ export default function NavHeader() {
           <Stack>
             {items(links)}
             {session.data?.user?.email ? (
-              <Link href='/' className={classes.link} onClick={() => signOut()}>Log Out</Link>
+              <Link href="/" className={classes.link} onClick={() => signOut()}>
+                Log Out
+              </Link>
             ) : (
               items(mobileLinks)
             )}
           </Stack>
-          <Divider my={"sm"} />
-          <Group justify="center" grow pb="xl" px="md">
-            <Button
-              rightSection={<IconPlus />}
-              onClick={() => {
-                if (
-                  typeof document !== "undefined" &&
-                  typeof onScan !== "undefined"
-                ) {
-                  if (onScan.isAttachedTo(document)) {
-                    onScan.detachFrom(document);
-                  }
-                }
-                router.push("/add");
-              }}
-            >
-              Add Part
-            </Button>
-          </Group>
+          {session.status === "authenticated" && (
+            <>
+              <Divider my={"sm"} />
+              <Group justify="center" grow pb="xl" px="md">
+                <Button
+                  rightSection={<IconPlus />}
+                  onClick={() => {
+                    if (
+                      typeof document !== "undefined" &&
+                      typeof onScan !== "undefined"
+                    ) {
+                      if (onScan.isAttachedTo(document)) {
+                        onScan.detachFrom(document);
+                      }
+                    }
+                    router.push("/add");
+                  }}
+                >
+                  Add Part
+                </Button>
+              </Group>
+            </>
+          )}
         </ScrollArea>
       </Drawer>
-    </Box >
+    </Box>
   );
 }
