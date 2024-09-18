@@ -19,7 +19,7 @@ model Parts {
   quantity Int     @default(0)
 
   productId          Int?
-  productCode        String  @unique
+  productCode        String
   productModel       String?
   productDescription String?
 
@@ -47,6 +47,12 @@ model Parts {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // New relation with user
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productCode, userId])
 }
 
 model Account {
@@ -85,6 +91,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  Parts         Parts[]
 }
 
 model VerificationToken {
