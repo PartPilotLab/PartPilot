@@ -11,7 +11,7 @@ type Props = {
 
 export default async function Home(props: Props) {
   //Get catalog search parameter from URL 
-  const catalog = props.searchParams.catalog;
+  const catalog = decodeURIComponent(props.searchParams.catalog);
   //Get first 10 items 
   const parts = (await prisma.parts.findMany({
     orderBy: { id: "desc" },
