@@ -62,7 +62,7 @@ export default function CategoriesPage({
               className={classes.card}
               padding="xl"
               onClick={() => {
-                router.push(`/?catalog=${item.parentCatalogName}`);
+                router.push(`/?catalog=${encodeURIComponent(item.parentCatalogName)}`);
               }}
             >
               <Card.Section>
