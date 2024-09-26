@@ -5,41 +5,51 @@ import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(request: NextRequest) {
-  // Get user session
   const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
 
   try {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get("page");
     const parts = await prisma.parts.findMany({
-      where: {
-        userId: session.user.id,
-      },
+      where: { userId: userId ?? null },
       orderBy: { id: "desc" },
       take: 10,
       skip: page ? (parseInt(page) - 1) * 10 : 0,
     });
     return NextResponse.json({ status: 200, parts: parts });
-  } catch (error: ErrorCallback | any) {
-    return NextResponse.json({ status: 500, error: error });
+  } catch (error: any) {
+    return NextResponse.json({ status: 500, error: error.message });
   }
 }
 
 export async function POST(request: NextRequest) {
-  // Get user session
   const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
 
   try {
     const res = await request.json();
     const pcNumber = res.pc;
-    const partExists = await prisma.parts.findUnique({
-      where: {
-        productCode_userId: {
-          productCode: pcNumber,
-          userId: session.user.id,
+
+    let partExists;
+    if (userId) {
+      partExists = await prisma.parts.findUnique({
+        where: {
+          productCode_userId: {
+            productCode: pcNumber,
+            userId: userId,
+          },
         },
-      },
-    });
+      });
+    } else {
+      partExists = await prisma.parts.findFirst({
+        where: {
+          productCode: pcNumber,
+          userId: null,
+        },
+      });
+    }
+
     if (partExists) {
       const partUpdate = await prisma.parts.update({
         where: {
@@ -94,16 +104,24 @@ export async function POST(request: NextRequest) {
           frequency: partInfo.frequency,
           capacitance: partInfo.capacitance,
           inductance: partInfo.inductance,
-          user: { connect: { id: session.user.id } },
+          user: { connect: { id: userId ?? null } },
         },
       });
-      const itemCount = await prisma.parts.aggregate({ _count: true });
+
+      const itemCount = await prisma.parts.aggregate({
+        _count: true,
+        where: { userId: userId ?? null },
+      });
+
       const parentCatalogNamesRaw = await prisma.parts.groupBy({
         by: ["parentCatalogName"],
+        where: { userId: userId ?? null },
       });
+
       const parentCatalogNames = parentCatalogNamesRaw.map(
         (item) => item.parentCatalogName
       );
+
       if (partCreate) {
         return NextResponse.json({
           status: 200,
@@ -118,9 +136,8 @@ export async function POST(request: NextRequest) {
     }
 
     // res.status(200).json(LSCSPart);
-  } catch (error: ErrorCallback | any) {
-    return NextResponse.json({ status: 500, error: error });
-
+  } catch (error: any) {
+    return NextResponse.json({ status: 500, error: error.message });
     // res.status(500).json({ message: e.message });
   }
 }

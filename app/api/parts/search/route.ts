@@ -32,9 +32,13 @@ export async function POST(request: NextRequest) {
     const filter = res.filter;
     const page = res.page;
 
-    let where: Prisma.PartsWhereInput = {
-      userId: session.user.id,
-    };
+    let where: Prisma.PartsWhereInput = {};
+
+    if (session?.user?.id) {
+      where.userId = session.user.id;
+    } else {
+      where.userId = null;
+    }
 
     if (filter.productCode) {
       where.productCode = {
@@ -98,9 +102,10 @@ export async function POST(request: NextRequest) {
       take: 10,
       skip: page ? (page - 1) * 10 : 0,
     });
+
     return NextResponse.json({ status: 200, parts: parts });
-  } catch (error: ErrorCallback | any) {
+  } catch (error: any) {
     console.log(error);
-    return NextResponse.json({ status: 500, error: error });
+    return NextResponse.json({ status: 500, error: error.message });
   }
 }
