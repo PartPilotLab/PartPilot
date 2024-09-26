@@ -9,7 +9,7 @@
 DROP INDEX "Parts_productCode_key";
 
 -- AlterTable
-ALTER TABLE "Parts" ADD COLUMN     "userId" TEXT NOT NULL;
+ALTER TABLE "Parts" ADD COLUMN     "userId" TEXT;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Parts_productCode_userId_key" ON "Parts"("productCode", "userId");
