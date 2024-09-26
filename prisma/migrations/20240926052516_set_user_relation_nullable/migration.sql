@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Parts" ALTER COLUMN "userId" DROP NOT NULL;

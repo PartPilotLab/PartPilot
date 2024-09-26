@@ -1,58 +1,50 @@
 import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.parts.upsert({
-    where: { productCode: "C1591" },
-    update: {
-      productModel: "CL10B104KB8NNNC",
-      quantity: 2,
-      capacitance: 1,
-      prices: [],
-    },
-    create: {
+  const parts = [
+    {
       productCode: "C1591",
       productModel: "CL10B104KB8NNNC",
       quantity: 2,
       capacitance: 1,
       prices: [],
     },
-  });
-
-  await prisma.parts.upsert({
-    where: { productCode: "C154120" },
-    update: {
-      productModel: "SDFL2012T150KTF",
-      quantity: 20,
-      capacitance: 1,
-      prices: [],
-    },
-    create: {
+    {
       productCode: "C154120",
       productModel: "SDFL2012T150KTF",
       quantity: 20,
       capacitance: 1,
       prices: [],
     },
-  });
-
-  await prisma.parts.upsert({
-    where: { productCode: "C29538" },
-    update: {
-      productModel: "X322530MSB4SI",
-      quantity: 5,
-      capacitance: 1,
-      prices: [],
-    },
-    create: {
+    {
       productCode: "C29538",
       productModel: "X322530MSB4SI",
       quantity: 5,
       capacitance: 1,
       prices: [],
     },
-  });
+  ];
+
+  for (const part of parts) {
+    const existingPart = await prisma.parts.findFirst({
+      where: {
+        productCode: part.productCode,
+        userId: null,
+      },
+    });
+
+    if (existingPart) {
+      await prisma.parts.update({
+        where: { id: existingPart.id },
+        data: part,
+      });
+    } else {
+      await prisma.parts.create({
+        data: { ...part, userId: null },
+      });
+    }
+  }
 }
 
 main()

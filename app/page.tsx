@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic";
 import { PartState } from "@/lib/helper/part_state";
 import prisma from "@/lib/prisma";
-import { Container, Text } from "@mantine/core";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import Link from "next/link";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import DashboardPage from "./dashboardPage";
 
@@ -15,55 +14,30 @@ type Props = {
 
 export default async function Home(props: Props) {
   const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return (
-      <Container
-        size="xs"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "24vh",
-        }}
-      >
-        <Text c="dimmed" ta="center" size="lg">
-          Please{" "}
-          <Link href={"/login"} style={{ color: "#6c757d" }}>
-            log in
-          </Link>{" "}
-          or{" "}
-          <Link href={"/signup"} style={{ color: "#6c757d" }}>
-            sign in
-          </Link>{" "}
-          to view your parts.
-        </Text>
-      </Container>
-    );
-  }
-
-  //Get catalog search parameter from URL
   const catalog = props.searchParams?.catalog;
-  //Get first 10 items
-  const parts = await prisma.parts.findMany({
-    where: {
-      parentCatalogName: catalog ? { equals: catalog } : undefined,
-      userId: session.user.id, // Always filter by the current user's ID
-    },
-    orderBy: { id: "desc" },
-    take: 10,
-  });
-  //Get total part count and parent catalog names
-  const aggregatedParts = await prisma.parts.aggregate({
-    where: { userId: session.user.id },
-    _count: true,
-  });
-  const parentCatalogNamesRaw = await prisma.parts.groupBy({
-    by: ["parentCatalogName"],
-    where: { userId: session.user.id },
-  });
-  //Filter parent catalog names (exclude null values)
+  const userId = session?.user?.id || null;
+
+  const whereCondition: Prisma.PartsWhereInput = {
+    parentCatalogName: catalog ? { equals: catalog } : undefined,
+    userId: userId,
+  };
+
+  const [parts, aggregatedParts, parentCatalogNamesRaw] = await Promise.all([
+    prisma.parts.findMany({
+      where: whereCondition,
+      orderBy: { id: "desc" },
+      take: 10,
+    }),
+    prisma.parts.aggregate({
+      where: { userId: userId },
+      _count: true,
+    }),
+    prisma.parts.groupBy({
+      by: ["parentCatalogName"],
+      where: { userId: userId },
+    }),
+  ]);
+
   const parentCatalogNames = parentCatalogNamesRaw
     .filter((item) => item.parentCatalogName !== null)
     .map((item) => item.parentCatalogName);

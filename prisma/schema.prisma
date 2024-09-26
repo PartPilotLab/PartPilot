@@ -53,6 +53,7 @@ model Parts {
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([productCode, userId])
+  @@index([productCode])
 }
 
 model Account {

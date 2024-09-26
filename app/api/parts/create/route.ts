@@ -8,71 +8,45 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function POST(request: NextRequest) {
   try {
-    // Get user session
     const session = await getServerSession(authOptions);
-
-    // Check user authentification
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    //Request body containing part details
     const reqBody = await request.json();
-
-    // Get user id
-    const userId = session.user.id;
-
-    console.log(reqBody);
-    //Check if part already exists
+    const userId = session?.user?.id || null;
     const pcNumber = reqBody.productCode;
-    const partExists = await prisma.parts.findUnique({
+
+    const existingPart = await prisma.parts.findFirst({
       where: {
-        productCode_userId: {
-          productCode: pcNumber,
-          userId: userId,
-        },
+        productCode: pcNumber,
+        userId: userId,
       },
     });
-    if (partExists) {
-      console.log("Part already exists");
+
+    if (existingPart) {
       return NextResponse.json(
         { error: "Part already exists" },
         { status: 409 }
       );
+    }
+
+    const validData = Object.fromEntries(
+      Object.entries(reqBody).filter(([_, value]) => value !== null)
+    ) as Prisma.PartsUncheckedCreateInput;
+
+    const dataWithUserId = { ...validData, userId };
+
+    const partCreate = await prisma.parts.create({
+      data: dataWithUserId,
+    });
+
+    if (partCreate) {
+      return NextResponse.json(
+        {
+          body: partCreate,
+          message: "Part created",
+        },
+        { status: 200 }
+      );
     } else {
-      //reqBody could contain null values which will raise an error on create
-      //Thus we get rid of null values
-      const validData = Object.fromEntries(
-        Object.entries(reqBody).filter(
-          ([key, value]) => value && value !== null
-        )
-      ) as Prisma.PartsUncheckedCreateInput;
-      //As PartsUncheckedCreateInput needed, otherwise a TypeError will be raised
-
-      // Include user id
-      const dataWithUserId = { ...validData, userId };
-
-      console.log("Creating part...");
-      const partCreate = await prisma.parts.create({
-        data: dataWithUserId,
-      });
-
-      if (partCreate) {
-        console.log("Created part:");
-        console.log(partCreate);
-        return NextResponse.json(
-          {
-            body: partCreate,
-            message: "Part created",
-          },
-          { status: 200 }
-        );
-      } else {
-        return NextResponse.json(
-          { error: "Part not created" },
-          { status: 500 }
-        );
-      }
+      return NextResponse.json({ error: "Part not created" }, { status: 500 });
     }
   } catch (error: ErrorCallback | any) {
     console.log("Error creating part", error);
