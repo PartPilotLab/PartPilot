@@ -142,24 +142,22 @@ export default function NavHeader() {
               c={"gray"}
             />
             <Group visibleFrom="sm">
-              {session.status === "authenticated" && (
-                <Button
-                  rightSection={<IconPlus />}
-                  onClick={() => {
-                    if (
-                      typeof document !== "undefined" &&
-                      typeof onScan !== "undefined"
-                    ) {
-                      if (onScan.isAttachedTo(document)) {
-                        onScan.detachFrom(document);
-                      }
+              <Button
+                rightSection={<IconPlus />}
+                onClick={() => {
+                  if (
+                    typeof document !== "undefined" &&
+                    typeof onScan !== "undefined"
+                  ) {
+                    if (onScan.isAttachedTo(document)) {
+                      onScan.detachFrom(document);
                     }
-                    router.push("/add");
-                  }}
-                >
-                  Add Part
-                </Button>
-              )}
+                  }
+                  router.push("/add");
+                }}
+              >
+                Add Part
+              </Button>
               <UserAvatar />
             </Group>
           </Group>
@@ -185,29 +183,25 @@ export default function NavHeader() {
               items(mobileLinks)
             )}
           </Stack>
-          {session.status === "authenticated" && (
-            <>
-              <Divider my={"sm"} />
-              <Group justify="center" grow pb="xl" px="md">
-                <Button
-                  rightSection={<IconPlus />}
-                  onClick={() => {
-                    if (
-                      typeof document !== "undefined" &&
-                      typeof onScan !== "undefined"
-                    ) {
-                      if (onScan.isAttachedTo(document)) {
-                        onScan.detachFrom(document);
-                      }
-                    }
-                    router.push("/add");
-                  }}
-                >
-                  Add Part
-                </Button>
-              </Group>
-            </>
-          )}
+          <Divider my={"sm"} />
+          <Group justify="center" grow pb="xl" px="md">
+            <Button
+              rightSection={<IconPlus />}
+              onClick={() => {
+                if (
+                  typeof document !== "undefined" &&
+                  typeof onScan !== "undefined"
+                ) {
+                  if (onScan.isAttachedTo(document)) {
+                    onScan.detachFrom(document);
+                  }
+                }
+                router.push("/add");
+              }}
+            >
+              Add Part
+            </Button>
+          </Group>
         </ScrollArea>
       </Drawer>
     </Box>
