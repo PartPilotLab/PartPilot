@@ -49,7 +49,7 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 
 - 🏬 **Inventory Management**: Effortlessly catalog your electronic parts with detailed information, including datasheets, supplier data, stock levels, and more.
 
-- 🖥️ **Direct LCSC Integration**: Seamlessly connect with LCSC for direct access to a vast inventory of parts, enabling easy addition and management of components within PartPilot.
+- 🖥️ **Direct LCSC & Mouser Integration**: Seamlessly connect with LCSC or Mouser for direct access to a vast inventory of parts, enabling easy addition and management of components within PartPilot.
 
 - 👁️ **Barcode Scanner Functionality**: Add parts to your inventory swiftly using the barcode scanner feature, enhancing efficiency and accuracy in part management.
 
@@ -82,6 +82,11 @@ Welcome to PartPilot, the ultimate open-source solution designed to streamline a
 To host PartPilot on your homeserver using docker-compose:
 copy the contents of the `docker-compose-release.yml` into a `docker-compose.yml` file on your server
 start the service using `docker-compose up -d` or `docker compose up -d`.
+
+### ⚙️ Configuration
+
+To enable the Mouser search functionality, you need to provide a Mouser Search API key.
+Add the `MOUSER_API_KEY` environment variable to your deployment (e.g., in `docker-compose.yml` or `.env` file).
 
 <a id="development"></a>
 

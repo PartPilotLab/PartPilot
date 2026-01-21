@@ -1,4 +1,5 @@
 import { extractPartInfoFromLCSCResponse } from "@/lib/helper/lcsc_api";
+import { searchMouser } from "@/lib/helper/mouser_api";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -7,8 +8,18 @@ export async function POST(request: NextRequest) {
     console.log(res);
 
     const pcNumber = res.productCode;
-    console.log(pcNumber);
+    const provider = res.provider || "LCSC"; // Default to LCSC
+    console.log(`Searching for ${pcNumber} using ${provider}`);
 
+    if (provider === "Mouser") {
+       const partInfo = await searchMouser(pcNumber);
+       if (!partInfo) {
+         return NextResponse.json({ status: 404, error: "Part not found" });
+       }
+       return NextResponse.json({ status: 200, body: partInfo });
+    }
+
+    // Default LCSC fallback
     const LSCSPart = await fetch(
       "https://wmsc.lcsc.com/ftps/wm/product/detail?productCode=" + pcNumber
     )

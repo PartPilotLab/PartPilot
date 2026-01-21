@@ -18,6 +18,7 @@ import {
   Image,
   ThemeIcon,
   LoadingOverlay,
+  Select,
 } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { scannerInputToType } from "../dashboardPage";
@@ -67,6 +68,17 @@ export default function Add() {
 
   const [scannerInput, setScannerInput] = useState("");
   const [productCode, setProductCode] = useState("");
+  const [provider, setProvider] = useState<string | null>("LCSC");
+  const [availableProviders, setAvailableProviders] = useState<string[]>(["LCSC"]);
+
+  useEffect(() => {
+    fetch("/api/providers")
+      .then((res) => res.json())
+      .then((data) => {
+        setAvailableProviders(data);
+      })
+      .catch((e) => console.error(e));
+  }, []);
 
   //When the user presses the Autocomplete Button
   async function handleAutocomplete() {
@@ -88,6 +100,7 @@ export default function Add() {
         method: "POST",
         body: JSON.stringify({
           productCode: productCodeInternal,
+          provider: provider,
         }),
       }).then((response) =>
         response
@@ -290,13 +303,22 @@ export default function Add() {
                   <Paper p={"sm"} shadow="sm">
                     <Group justify="space-between" pb={4}>
                       <Text>Autocomplete: </Text>
-                      <Tooltip label="Autocomplete For LCSC">
+                      <Tooltip label={`Autocomplete For ${provider}`}>
                         <ThemeIcon>
                           <IconInfoCircle />
                         </ThemeIcon>
                       </Tooltip>
                     </Group>
                     <Grid>
+                      <Grid.Col span={12}>
+                        <Select
+                          data={availableProviders}
+                          value={provider}
+                          onChange={setProvider}
+                          allowDeselect={false}
+                          placeholder="Provider"
+                        />
+                      </Grid.Col>
                       <Grid.Col span={6}>
                         <TextInput
                           placeholder="Scanner Input"
